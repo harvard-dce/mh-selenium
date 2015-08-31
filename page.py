@@ -3,7 +3,8 @@ from selenium.webdriver.support.ui import Select
 from selenium.webdriver.common.keys import Keys
 from pytimeparse.timeparse import timeparse
 
-from urlparse import urljoin
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 from locators import RecordingsLocators, \
                      TrimLocators, \
                      LoginLocators, \
@@ -57,6 +58,10 @@ class RecordingsPage(BasePage):
         return self.driver.find_element(*RecordingsLocators.REFRESH_CHECKBOX)
 
     @property
+    def on_hold_tab(self):
+        return self.driver.find_element(*RecordingsLocators.ON_HOLD_TAB)
+
+    @property
     def trim_iframe(self):
         return self.driver.find_element(*RecordingsLocators.TRIM_IFRAME)
 
@@ -72,6 +77,9 @@ class RecordingsPage(BasePage):
         self.search_select.select_by_value(field)
         self.search_input.send_keys(value)
         self.search_input.send_keys(Keys.RETURN)
+        WebDriverWait(self.driver, 10).until(
+            EC.presence_of_element_located(RecordingsLocators.FILTER_FOUND_COUNT)
+        )
 
     def max_per_page(self):
         self.per_page_select.select_by_visible_text('100')

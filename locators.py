@@ -12,8 +12,10 @@ class AdminLocators(object):
 class RecordingsLocators(object):
     SEARCH_SELECT = (By.CSS_SELECTOR, 'div#searchBox > select')
     SEARCH_INPUT = (By.CSS_SELECTOR, 'div#searchBox > span > input')
+    FILTER_FOUND_COUNT = (By.CSS_SELECTOR, 'span#filterRecordingCount')
     PERPAGE_SELECT = (By.CSS_SELECTOR, 'select#pageSize')
     REFRESH_CHECKBOX = (By.CSS_SELECTOR, 'input#refreshEnabled')
+    ON_HOLD_TAB = (By.CSS_SELECTOR, 'label[for=state-hold]')
     TRIM_LINK = (By.XPATH, '//a[@title="Review / VideoEdit"]')
     TRIM_IFRAME = (By.CSS_SELECTOR, 'iframe#holdActionUI')
 

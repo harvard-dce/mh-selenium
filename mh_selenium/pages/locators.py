@@ -16,7 +16,7 @@ class RecordingsLocators(object):
     PERPAGE_SELECT = (By.CSS_SELECTOR, 'select#pageSize')
     REFRESH_CHECKBOX = (By.CSS_SELECTOR, 'input#refreshEnabled')
     ON_HOLD_TAB = (By.CSS_SELECTOR, 'label[for=state-hold]')
-    TRIM_LINK = (By.XPATH, '//a[@title="Review / VideoEdit"]')
+    TRIM_LINK = (By.CSS_SELECTOR, 'a[title="Review / VideoEdit"]')
     TRIM_IFRAME = (By.CSS_SELECTOR, 'iframe#holdActionUI')
 
 class TrimLocators(object):

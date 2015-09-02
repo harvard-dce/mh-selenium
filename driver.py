@@ -6,7 +6,7 @@ from urlparse import urljoin
 import click
 click.disable_unicode_literals_warning = True
 
-from page import RecordingsPage, LoginPage, AdminPage, TrimPage
+from mh_selenium.pages import RecordingsPage, LoginPage, AdminPage, TrimPage
 
 @click.group()
 def cli():
@@ -17,7 +17,7 @@ def cli():
 @click.option('-u', '--username', prompt=True)
 @click.option('-p', '--password', prompt=True)
 @click.option('-f', '--filter')
-@click.option('-c', '--count', type=int)
+@click.option('-c', '--count', type=int, default=None)
 def run_trims(base_url, username, password, filter=None, count=None):
 
     driver = webdriver.Chrome()
@@ -25,33 +25,26 @@ def run_trims(base_url, username, password, filter=None, count=None):
     driver.get(urljoin(base_url, '/admin'))
 
     if 'Login' in driver.title:
-        login_page = LoginPage(driver)
-        login_page.login(username, password)
-        sleep(1)
+        page = LoginPage(driver)
+        page.login(username, password)
 
-    recs_page = RecordingsPage(driver)
-    recs_page.refresh_off()
-    recs_page.max_per_page()
-    recs_page.on_hold_tab.click()
-    sleep(1)
+    page = RecordingsPage(driver)
+    page.max_per_page()
+    page.on_hold_tab.click()
+    page.refresh_off()
 
     if filter is not None:
         field, value = filter.split(':', 1)
-        recs_page.filter_recordings(field, value)
-        sleep(1)
+        page.filter_recordings(field, value)
 
-    js_links = [x.get_attribute('href') for x in recs_page.trim_links]
-
-    if count is not None:
-        js_links = js_links[:count]
-
-    for js_link in js_links:
-        scheme, js = js_link.split(':', 1)
+    for link in page.trim_links[:count]:
+        href = link.get_attribute('href')
+        scheme, js = href.split(':', 1)
         driver.execute_script(js)
-        driver.switch_to.frame(recs_page.trim_iframe)
+        driver.switch_to.frame(page.trim_iframe)
         sleep(1)
-        trim_page = TrimPage(driver)
-        trim_page.trim()
+        page = TrimPage(driver)
+        page.trim()
         driver.switch_to.default_content()
 
     driver.close()

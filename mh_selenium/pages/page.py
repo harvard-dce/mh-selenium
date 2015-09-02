@@ -4,7 +4,10 @@ from selenium.webdriver.common.keys import Keys
 from pytimeparse.timeparse import timeparse
 
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.expected_conditions import \
+    element_to_be_clickable as clickable, \
+    presence_of_element_located as presence
+
 from locators import RecordingsLocators, \
                      TrimLocators, \
                      LoginLocators, \
@@ -13,6 +16,12 @@ from locators import RecordingsLocators, \
 class BasePage(object):
     def __init__(self, driver):
         self.driver = driver
+
+    def get_element(self, locator, condition=None):
+        if condition is not None:
+            return WebDriverWait(self.driver, 10).until(condition(locator))
+        else:
+            return self.driver.find_element(*locator)
 
 class LoginPage(BasePage):
 
@@ -43,27 +52,27 @@ class RecordingsPage(BasePage):
 
     @property
     def search_select(self):
-        return Select(self.driver.find_element(*RecordingsLocators.SEARCH_SELECT))
+        return Select(self.get_element(RecordingsLocators.SEARCH_SELECT, clickable))
 
     @property
     def search_input(self):
-        return self.driver.find_element(*RecordingsLocators.SEARCH_INPUT)
+        return self.get_element(RecordingsLocators.SEARCH_INPUT, clickable)
 
     @property
     def per_page_select(self):
-        return Select(self.driver.find_element(*RecordingsLocators.PERPAGE_SELECT))
+        return Select(self.get_element(RecordingsLocators.PERPAGE_SELECT, clickable))
 
     @property
     def refresh_checkbox(self):
-        return self.driver.find_element(*RecordingsLocators.REFRESH_CHECKBOX)
+        return self.get_element(RecordingsLocators.REFRESH_CHECKBOX, clickable)
 
     @property
     def on_hold_tab(self):
-        return self.driver.find_element(*RecordingsLocators.ON_HOLD_TAB)
+        return self.get_element(RecordingsLocators.ON_HOLD_TAB, clickable)
 
     @property
     def trim_iframe(self):
-        return self.driver.find_element(*RecordingsLocators.TRIM_IFRAME)
+        return self.get_element(RecordingsLocators.TRIM_IFRAME)
 
     @property
     def trim_links(self):
@@ -77,9 +86,8 @@ class RecordingsPage(BasePage):
         self.search_select.select_by_value(field)
         self.search_input.send_keys(value)
         self.search_input.send_keys(Keys.RETURN)
-        WebDriverWait(self.driver, 10).until(
-            EC.presence_of_element_located(RecordingsLocators.FILTER_FOUND_COUNT)
-        )
+        found = self.get_element(RecordingsLocators.FILTER_FOUND_COUNT, presence)
+        return found
 
     def max_per_page(self):
         self.per_page_select.select_by_visible_text('100')

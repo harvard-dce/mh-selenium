@@ -1,4 +1,5 @@
 import datetime
+from time import sleep
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.common.keys import Keys
 from pytimeparse.timeparse import timeparse
@@ -9,15 +10,16 @@ from selenium.webdriver.support.expected_conditions import \
     presence_of_element_located as presence
 
 from locators import RecordingsLocators, \
-                     TrimLocators, \
-                     LoginLocators, \
-                     AdminLocators
+                                             UploadLocators, \
+                                             TrimLocators, \
+                                             LoginLocators, \
+                                             AdminLocators
 
 class BasePage(object):
     def __init__(self, driver):
         self.driver = driver
 
-    def get_element(self, locator, condition=None):
+    def get_element(self, locator, condition=clickable):
         if condition is not None:
             return WebDriverWait(self.driver, 10).until(condition(locator))
         else:
@@ -46,7 +48,11 @@ class AdminPage(BasePage):
 
     @property
     def recordings_tab(self):
-        return self.driver.find_element(*AdminLocators.RECORDINGS_TAB)
+        return self.get_element(AdminLocators.RECORDINGS_TAB)
+
+    @property
+    def upload_button(self):
+        return self.get_element(AdminLocators.UPLOAD_BUTTON)
 
 class RecordingsPage(BasePage):
 
@@ -70,6 +76,7 @@ class RecordingsPage(BasePage):
     def on_hold_tab(self):
         return self.get_element(RecordingsLocators.ON_HOLD_TAB, clickable)
 
+
     @property
     def trim_iframe(self):
         return self.get_element(RecordingsLocators.TRIM_IFRAME)
@@ -92,28 +99,146 @@ class RecordingsPage(BasePage):
     def max_per_page(self):
         self.per_page_select.select_by_visible_text('100')
 
+    def switch_to_tab(self, tab_elem):
+        """
+        bypass the usual element click() method as these tab links frequently
+        throw exceptions about not being clickable at point blah, blah
+        """
+        self.driver.execute_script("arguments[0].click();", tab_elem)
+
+
+class UploadPage(BasePage):
+
+    @property
+    def title_input(self):
+        return self.get_element(UploadLocators.TITLE_INPUT)
+
+    @property
+    def presenter_input(self):
+        return self.get_element(UploadLocators.PRESENTER_INPUT)
+
+    @property
+    def course_input(self):
+        return self.get_element(UploadLocators.COURSE_INPUT)
+
+    @property
+    def license_select(self):
+        return Select(self.get_element(UploadLocators.LICENSE_SELECT))
+
+    @property
+    def rec_date_input(self):
+        return self.get_element(UploadLocators.REC_DATE_INPUT)
+
+    @property
+    def start_hour_select(self):
+        return Select(self.get_element(UploadLocators.START_HOUR_SELECT))
+
+    @property
+    def start_minute_select(self):
+        return Select(self.get_element(UploadLocators.START_MINUTE_SELECT))
+
+    @property
+    def contributor_input(self):
+        return self.get_element(UploadLocators.CONTRIBUTOR_INPUT)
+
+    @property
+    def type_input(self):
+        return self.get_element(UploadLocators.TYPE_INPUT)
+
+    @property
+    def subject_input(self):
+        return self.get_element(UploadLocators.SUBJECT_INPUT)
+
+    @property
+    def lang_input(self):
+        return self.get_element(UploadLocators.LANG_INPUT)
+
+    @property
+    def desc_input(self):
+        return self.get_element(UploadLocators.DESC_INPUT)
+
+    @property
+    def copyright_input(self):
+        return self.get_element(UploadLocators.COPYRIGHT_INPUT)
+
+    @property
+    def single_upload_radio(self):
+        return self.get_element(UploadLocators.SINGLE_UPLOAD_RADIO)
+
+    @property
+    def multi_upload_radio(self):
+        return self.get_element(UploadLocators.MULTI_UPLOAD_RADIO)
+
+    @property
+    def local_file_radio(self):
+        return self.get_element(UploadLocators.LOCAL_FILE_RADIO)
+
+    @property
+    def inbox_file_radio(self):
+        return self.get_element(UploadLocators.INBOX_FILE_RADIO)
+
+    @property
+    def local_file_upload_iframe(self):
+        iframes = self.driver.find_elements(*UploadLocators.FILE_UPLOAD_IFRAME)
+        # should be the first one, but ugh.
+        return iframes[0]
+
+    @property
+    def local_file_selector(self):
+        return self.get_element(UploadLocators.LOCAL_FILE_SELECTOR)
+
+    @property
+    def inbox_file_select(self):
+        return Select(self.get_element(UploadLocators.INBOX_FILE_SELECT))
+
+    @property
+    def contains_slides_checkbox(self):
+        return self.get_element(UploadLocators.CONTAINS_SLIDES_CHECKBOX)
+
+    @property
+    def workflow_select(self):
+        return Select(self.get_element(UploadLocators.WORKFLOW_SELECT))
+
+    @property
+    def live_stream_checkbox(self):
+        return self.get_element(UploadLocators.LIVE_STREAM_CHECKBOX)
+
+    @property
+    def multitrack_checkbox(self):
+        return self.get_element(UploadLocators.MULTITRACK_CHECKBOX)
+
+    @property
+    def upload_button(self):
+        return self.get_element(UploadLocators.UPLOAD_BUTTON)
+
+    def set_file_upload(self, file_path):
+        self.single_upload_radio.click()
+        self.local_file_radio.click()
+        self.driver.switch_to.frame(self.local_file_upload_iframe)
+        self.local_file_selector.send_keys(file_path)
+        self.driver.switch_to.default_content()
 
 class TrimPage(BasePage):
 
     @property
     def trim_begin_input(self):
-        return self.driver.find_element(*TrimLocators.CLIP_BEGIN_INPUT)
+        return self.get_element(TrimLocators.CLIP_BEGIN_INPUT)
 
     @property
     def trim_end_input(self):
-        return self.driver.find_element(*TrimLocators.CLIP_END_INPUT)
+        return self.get_element(TrimLocators.CLIP_END_INPUT)
 
     @property
     def trim_ok_button(self):
-        return self.driver.find_element(*TrimLocators.CLIP_OK_BUTTON)
+        return self.get_element(TrimLocators.CLIP_OK_BUTTON)
 
     @property
     def split_remover(self):
-        return self.driver.find_element(*TrimLocators.CLIP_REMOVE_BUTTON)
+        return self.get_element(TrimLocators.CLIP_REMOVE_BUTTON)
 
     @property
     def continue_button(self):
-        return self.driver.find_element(*TrimLocators.CONTINUE_BUTTON)
+        return self.get_element(TrimLocators.CONTINUE_BUTTON)
 
     def trim(self):
         media_length = timeparse(self.trim_end_input.get_attribute('value'))
@@ -123,3 +248,4 @@ class TrimPage(BasePage):
         self.trim_ok_button.click()
         self.split_remover.click()
         self.continue_button.click()
+        sleep(2)

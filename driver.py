@@ -20,7 +20,7 @@ def cli():
 @click.option('-f', '--file')
 def upload(base_url, username, password, file):
 
-    driver = webdriver.Chrome()
+    driver = webdriver.Firefox()
     driver.implicitly_wait(10)
     driver.get(urljoin(base_url, '/admin'))
 
@@ -51,7 +51,7 @@ def upload(base_url, username, password, file):
 @click.option('-c', '--count', type=int, default=None)
 def run_trims(base_url, username, password, filter=None, count=None):
 
-    driver = webdriver.Chrome()
+    driver = webdriver.Firefox()
     driver.implicitly_wait(10)
     driver.get(urljoin(base_url, '/admin'))
 

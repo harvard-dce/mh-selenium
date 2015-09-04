@@ -5,7 +5,11 @@ Selenium script for DCE Matterhorn
 
 ## Getting started
 
-`pip install -r requirements.txt`
+1. Create a virtualenv: `virtualenv venv && source venv/bin/activate`
+2. Install the requirements: `pip install -r requirements.txt`
+3. `./driver.py --help` for commands and `./driver.py [cmd] --help` for options
 
-The current version of the script is using the Chrome driver which requires 
-installation of https://sites.google.com/a/chromium.org/chromedriver/downloads
+## Resources
+
+* python selenium docs: https://selenium-python.readthedocs.org/index.html
+

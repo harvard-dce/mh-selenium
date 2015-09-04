@@ -1,6 +1,7 @@
 import click
+from fabric.api import env
 from functools import wraps
-from urlparse import urljoin
+from urlparse import urljoin, urlsplit
 from selenium import webdriver
 from mh_selenium.pages import LoginPage
 
@@ -11,6 +12,7 @@ class ClickState(object):
         self.password = None
         self.base_url = None
         self.driver = None
+        self.inbox_path = None
 
 
 pass_state = click.make_pass_decorator(ClickState, ensure=True)
@@ -37,11 +39,34 @@ def base_url_arg(f):
                           expose_value=False,
                           callback=common_callback)(f)
 
-def common_options(f):
+def inbox_path_option(f):
+    return click.argument('-i', '--inbox',
+                          default='/home/data/opencast/inbox',
+                          expose_value=False,
+                          callback=common_callback)(f)
+
+def selenium_options(f):
     f = password_option(f)
     f = username_option(f)
     f = base_url_arg(f)
     return f
+
+def inbox_options(f):
+    f = base_url_arg(f)
+    f = inbox_path_option(f)
+    return f
+
+def init_fabric(click_cmd):
+    @wraps(click_cmd)
+    def wrapped(state, *args, **kwargs):
+
+        # set up the fabric env
+        url_parts = urlsplit(state.base_url)
+        env.host_string = url_parts.netloc
+        env.user = 'ansible'
+
+        return click_cmd(state, *args, **kwargs)
+    return wrapped
 
 def init_driver(init_path=''):
     def decorator(click_cmd):

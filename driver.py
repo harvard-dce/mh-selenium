@@ -1,8 +1,17 @@
 
 import click
+from fabric.context_managers import cd
+
 click.disable_unicode_literals_warning = True
 
-from mh_selenium.utils import common_options, pass_state, init_driver
+from unipath import Path
+from fabric.api import run, abort, env
+from fabric.operations import put
+from fabric.colors import cyan
+from fabric.contrib.files import exists as remote_exists
+
+from mh_selenium.utils import selenium_options, inbox_options, pass_state, \
+    init_driver, base_url_arg, init_fabric
 from mh_selenium.pages import RecordingsPage, AdminPage, TrimPage, \
                               UploadPage
 
@@ -12,7 +21,7 @@ def cli():
 
 @cli.command()
 @click.option('-f', '--file')
-@common_options
+@selenium_options
 @pass_state
 @init_driver('/admin')
 def upload(state, file):
@@ -32,7 +41,7 @@ def upload(state, file):
 @cli.command()
 @click.option('-f', '--filter')
 @click.option('-c', '--count', type=int, default=None)
-@common_options
+@selenium_options
 @pass_state
 @init_driver('/admin')
 def trim(state, filter=None, count=None):
@@ -54,6 +63,48 @@ def trim(state, filter=None, count=None):
         page = TrimPage(state.driver)
         page.trim()
         state.driver.switch_to.default_content()
+
+@cli.group()
+@pass_state
+def inbox(state):
+    pass
+
+@inbox.command(name='put')
+@click.option('-f', '--file')
+@inbox_options
+@pass_state
+@init_fabric
+def inbox_put(state, file):
+    result = put(local_path=file, remote_path=state.inbox_path, use_sudo=True)
+    print(cyan("Files created: {}".format(str(result))))
+
+@inbox.command(name='symlink')
+@click.option('-f', '--file')
+@click.option('-c', '--count', type=int, default=1)
+@inbox_options
+@pass_state
+@init_fabric
+def inbox_symlink(state, file, count):
+    remote_path = Path(state.inbox_path).child(file)
+    with cd(state.inbox_path):
+        if not remote_exists(file, verbose=True):
+            abort("remote file {} not found".format(remote_path))
+        for i in range(count):
+            link = remote_path.stem + '_' + str(i) + remote_path.ext
+            run("ln -s {} {}".format(file, link))
+        return
+
+@inbox.command(name='list')
+@click.argument('match', default='')
+@inbox_options
+@pass_state
+@init_fabric
+def inbox_list(state, match):
+    with cd(state.inbox_path):
+        output = run('ls {}'.format(match))
+        for f in output.split():
+            print(cyan(f))
+
 
 if __name__ == '__main__':
     cli()

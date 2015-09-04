@@ -1,3 +1,4 @@
 selenium
 click
 pytimeparse
+fabric

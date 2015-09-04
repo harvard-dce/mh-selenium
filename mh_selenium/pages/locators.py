@@ -53,4 +53,5 @@ class TrimLocators(object):
     CLIP_OK_BUTTON = (By.CSS_SELECTOR, 'input#okButton')
     CLIP_REMOVE_BUTTON = (By.CSS_SELECTOR, 'a#splitRemover-0')
     CONTINUE_BUTTON = (By.CSS_SELECTOR, 'input#continueButton')
+    CLEAR_BUTTON = (By.CSS_SELECTOR, 'input#clearList')
 

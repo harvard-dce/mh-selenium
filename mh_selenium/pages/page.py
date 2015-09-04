@@ -240,12 +240,18 @@ class TrimPage(BasePage):
     def continue_button(self):
         return self.get_element(TrimLocators.CONTINUE_BUTTON)
 
+    @property
+    def clear_button(self):
+        return self.get_element(TrimLocators.CLEAR_BUTTON)
+
     def trim(self):
+        self.clear_button.click()
         media_length = timeparse(self.trim_end_input.get_attribute('value'))
         trim_length = media_length / 10
         self.trim_begin_input.clear()
         self.trim_begin_input.send_keys(str(datetime.timedelta(seconds=trim_length)))
         self.trim_ok_button.click()
+        sleep(2)
         self.split_remover.click()
         self.continue_button.click()
         sleep(2)

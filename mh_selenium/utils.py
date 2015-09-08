@@ -1,4 +1,5 @@
 import click
+from unipath import Path
 from fabric.api import env
 from functools import wraps
 from urlparse import urljoin, urlsplit
@@ -13,7 +14,12 @@ class ClickState(object):
         self.base_url = None
         self.driver = None
         self.inbox_path = None
+        self.host = None
+        self.user = None
 
+    @property
+    def inbox_dest(self):
+        return Path(self.inbox_path).parent.child('files','collection','inbox')
 
 pass_state = click.make_pass_decorator(ClickState, ensure=True)
 
@@ -39,8 +45,19 @@ def base_url_arg(f):
                           expose_value=False,
                           callback=common_callback)(f)
 
+def user_option(f):
+    return click.option('-u','--user',
+                        default='ansible',
+                        expose_value=False,
+                        callback=common_callback)(f)
+
+def host_option(f):
+    return click.option('-H','--host',
+                        expose_value=False,
+                        callback=common_callback)(f)
+
 def inbox_path_option(f):
-    return click.argument('-i', '--inbox',
+    return click.option('-i', '--inbox_path',
                           default='/home/data/opencast/inbox',
                           expose_value=False,
                           callback=common_callback)(f)
@@ -52,7 +69,8 @@ def selenium_options(f):
     return f
 
 def inbox_options(f):
-    f = base_url_arg(f)
+    f = host_option(f)
+    f = user_option(f)
     f = inbox_path_option(f)
     return f
 
@@ -61,9 +79,8 @@ def init_fabric(click_cmd):
     def wrapped(state, *args, **kwargs):
 
         # set up the fabric env
-        url_parts = urlsplit(state.base_url)
-        env.host_string = url_parts.netloc
-        env.user = 'ansible'
+        env.host_string = state.host
+        env.user = state.user
 
         return click_cmd(state, *args, **kwargs)
     return wrapped

@@ -34,18 +34,29 @@ class UploadLocators(object):
     LANG_INPUT = (By.CSS_SELECTOR, 'input#language')
     DESC_INPUT = (By.CSS_SELECTOR, 'input#description')
     COPYRIGHT_INPUT = (By.CSS_SELECTOR, 'input#copyright')
-    MULTI_UPLOAD_RADIO = (By.CSS_SELECTOR, 'input#multiUploadRadio')
-    SINGLE_UPLOAD_RADIO = (By.CSS_SELECTOR, 'input#singleUploadRadio')
-    FILE_UPLOAD_IFRAME = (By.CSS_SELECTOR, 'iframe.uploadForm-container')
-    LOCAL_FILE_RADIO = (By.CSS_SELECTOR, 'input#fileSourceSingleA')
-    INBOX_FILE_RADIO = (By.CSS_SELECTOR, 'input#fileSourceSingleB')
+
+    MULTI_FILE_RADIO = (By.CSS_SELECTOR, 'input#multiUploadRadio')
+    SINGLE_FILE_RADIO = (By.CSS_SELECTOR, 'input#singleUploadRadio')
+
+    FILE_INPUT_IFRAME = (By.CSS_SELECTOR, 'iframe.uploadForm-container')
+
+    SINGLE_FILE_LOCAL_RADIO = (By.CSS_SELECTOR,'input#fileSourceSingleA')
+    SINGLE_FILE_INBOX_RADIO = (By.CSS_SELECTOR, 'input#fileSourceSingleB')
+
+    MULTI_FILE_PRESENTATION_LOCAL_RADIO = (By.CSS_SELECTOR, 'input#fileSourcePresentationA')
+    MULTI_FILE_PRESENTATION_INBOX_RADIO = (By.CSS_SELECTOR, 'input#fileSourcePresentationB')
+    MULTI_FILE_PRESENTER_LOCAL_RADIO = (By.CSS_SELECTOR, 'input#fileSourcePresenterA')
+    MULTI_FILE_PRESENTER_INBOX_RADIO = (By.CSS_SELECTOR, 'input#fileSourcePresenterB')
+
     LOCAL_FILE_SELECTOR = (By.CSS_SELECTOR, 'input#file')
     INBOX_FILE_SELECT = (By.CSS_SELECTOR, 'select#file')
+
     CONTAINS_SLIDES_CHECKBOX = (By.CSS_SELECTOR, 'input#containsSlides')
     WORKFLOW_SELECT = (By.CSS_SELECTOR, 'select#workflowSelector')
     LIVE_STREAM_CHECKBOX = (By.CSS_SELECTOR, 'input#hasLive')
     MULTITRACK_CHECKBOX = (By.CSS_SELECTOR, 'input#epiphanUpload')
     UPLOAD_BUTTON = (By.CSS_SELECTOR, 'button#submitButton')
+    UPLOAD_PROGRESS_DIALOG = (By.CSS_SELECTOR, 'div#progressStage')
 
 class TrimLocators(object):
     CLIP_BEGIN_INPUT = (By.CSS_SELECTOR, 'span#clipBegin > input')

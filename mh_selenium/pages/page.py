@@ -7,7 +7,9 @@ from pytimeparse.timeparse import timeparse
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support.expected_conditions import \
     element_to_be_clickable as clickable, \
-    presence_of_element_located as presence
+    presence_of_element_located as presence, \
+    staleness_of as stale, \
+    visibility_of as visible
 
 from locators import RecordingsLocators, \
                                              UploadLocators, \
@@ -24,6 +26,12 @@ class BasePage(object):
             return WebDriverWait(self.driver, 10).until(condition(locator))
         else:
             return self.driver.find_element(*locator)
+
+    def set_checkbox(self, cb, enabled):
+        if enabled and not cb.is_selected():
+            cb.click()
+        elif not enabled and cb.is_selected():
+            cb.click()
 
 class LoginPage(BasePage):
 
@@ -162,26 +170,40 @@ class UploadPage(BasePage):
         return self.get_element(UploadLocators.COPYRIGHT_INPUT)
 
     @property
-    def single_upload_radio(self):
-        return self.get_element(UploadLocators.SINGLE_UPLOAD_RADIO)
+    def single_file_radio(self):
+        return self.get_element(UploadLocators.SINGLE_FILE_RADIO)
 
     @property
-    def multi_upload_radio(self):
-        return self.get_element(UploadLocators.MULTI_UPLOAD_RADIO)
+    def multi_file_radio(self):
+        return self.get_element(UploadLocators.MULTI_FILE_RADIO)
 
     @property
-    def local_file_radio(self):
-        return self.get_element(UploadLocators.LOCAL_FILE_RADIO)
+    def single_file_local_radio(self):
+        return self.get_element(UploadLocators.SINGLE_FILE_LOCAL_RADIO)
 
     @property
-    def inbox_file_radio(self):
-        return self.get_element(UploadLocators.INBOX_FILE_RADIO)
+    def single_file_inbox_radio(self):
+        return self.get_element(UploadLocators.SINGLE_FILE_INBOX_RADIO)
 
     @property
-    def local_file_upload_iframe(self):
-        iframes = self.driver.find_elements(*UploadLocators.FILE_UPLOAD_IFRAME)
-        # should be the first one, but ugh.
-        return iframes[0]
+    def multi_file_presentation_local_radio(self):
+        return self.get_element(UploadLocators.MULTI_FILE_PRESENTATION_LOCAL_RADIO)
+
+    @property
+    def multi_file_presenter_local_radio(self):
+        return self.get_element(UploadLocators.MULTI_FILE_PRESENTER_LOCAL_RADIO)
+
+    @property
+    def multi_file_presentation_inbox_radio(self):
+        return self.get_element(UploadLocators.MULTI_FILE_PRESENTATION_INBOX_RADIO)
+
+    @property
+    def multi_file_presenter_inbox_radio(self):
+        return self.get_element(UploadLocators.MULTI_FILE_PRESENTER_INBOX_RADIO)
+
+    @property
+    def file_input_iframes(self):
+        return self.driver.find_elements(*UploadLocators.FILE_INPUT_IFRAME)
 
     @property
     def local_file_selector(self):
@@ -211,12 +233,54 @@ class UploadPage(BasePage):
     def upload_button(self):
         return self.get_element(UploadLocators.UPLOAD_BUTTON)
 
-    def set_file_upload(self, file_path):
-        self.single_upload_radio.click()
-        self.local_file_radio.click()
-        self.driver.switch_to.frame(self.local_file_upload_iframe)
-        self.local_file_selector.send_keys(file_path)
+    @property
+    def upload_progress_dialog(self):
+        return self.get_element(UploadLocators.UPLOAD_PROGRESS_DIALOG)
+
+    def set_live_stream(self, enabled):
+        self.set_checkbox(self.live_stream_checkbox, enabled)
+
+    def set_multitrack(self, enabled):
+        self.set_checkbox(self.multitrack_checkbox, enabled)
+
+    def set_upload_files(self, presenter=None, presentation=None, combined=None,
+                         is_inbox=False):
+        """
+        The MH upload UI does some crazy stuff with iframes.
+        None of the iframe elements have unique ids, so this
+        and the subsequent _private methods have to make some
+        assumptions about the order in which they are returned
+        by the locator elements.
+        """
+        if combined is not None:
+            self.single_file_radio.click()
+            if is_inbox:
+                self.single_file_inbox_radio.click()
+            else:
+                self.single_file_local_radio.click()
+            self.set_upload_file(self.file_input_iframes[0], combined, is_inbox)
+        else:
+            self.multi_file_radio.click()
+            if is_inbox:
+                self.multi_file_presentation_inbox_radio.click()
+                self.multi_file_presenter_inbox_radio.click()
+            else:
+                self.multi_file_presentation_local_radio.click()
+                self.multi_file_presenter_local_radio.click()
+            self.set_upload_file(self.file_input_iframes[1], presentation, is_inbox)
+            self.set_upload_file(self.file_input_iframes[2], presenter, is_inbox)
+
+    def set_upload_file(self, iframe, file, is_inbox):
+        self.driver.switch_to.frame(iframe)
+        if is_inbox:
+            self.inbox_file_select.select_by_value(file)
+        else:
+            # NOTE: this will silently fail if it's not an absolute path to an existing file
+            self.local_file_selector.send_keys(file)
         self.driver.switch_to.default_content()
+
+    def wait_for_upload_finish(self):
+        WebDriverWait(self.driver, 1000000).until_not(visible(self.upload_progress_dialog))
 
 class TrimPage(BasePage):
 

@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+from time import sleep
 
 import click
 from fabric.context_managers import cd
@@ -5,7 +7,7 @@ from fabric.context_managers import cd
 click.disable_unicode_literals_warning = True
 
 from unipath import Path
-from fabric.api import run, abort, env
+from fabric.api import run, abort, env, hide
 from fabric.operations import put
 from fabric.colors import cyan
 from fabric.contrib.files import exists as remote_exists
@@ -20,11 +22,15 @@ def cli():
     pass
 
 @cli.command()
-@click.option('-f', '--file')
+@click.option('--presenter')
+@click.option('--presentation')
+@click.option('--combined')
+@click.option('-i', '--inbox', is_flag=True)
+@click.option('--live_stream', is_flag=True)
 @selenium_options
 @pass_state
 @init_driver('/admin')
-def upload(state, file):
+def upload(state, presenter, presentation, combined, inbox, live_stream):
 
     page = AdminPage(state.driver)
     page.upload_button.click()
@@ -32,11 +38,15 @@ def upload(state, file):
     page = UploadPage(state.driver)
     page.title_input.send_keys("My Test Upload")
     page.type_input.send_keys("L01")
-    page.set_file_upload(file)
+    page.set_upload_files(presenter=presenter,
+                          presentation=presentation,
+                          combined=combined,
+                          is_inbox=inbox)
     page.workflow_select.select_by_value('DCE-production')
-    page.live_stream_checkbox.click()
-    page.multitrack_checkbox.click()
+    page.set_live_stream(live_stream)
+    page.set_multitrack(combined is not None)
     page.upload_button.click()
+    page.wait_for_upload_finish()
 
 @cli.command()
 @click.option('-f', '--filter')
@@ -100,7 +110,7 @@ def inbox_symlink(state, file, count):
 @pass_state
 @init_fabric
 def inbox_list(state, match):
-    with cd(state.inbox_path):
+    with cd(state.inbox_dest), hide('running', 'stdout', 'stderr'):
         output = run('ls {}'.format(match))
         for f in output.split():
             print(cyan(f))

@@ -1,4 +1,5 @@
 import datetime
+from os.path import abspath
 from time import sleep
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.common.keys import Keys
@@ -7,7 +8,8 @@ from pytimeparse.timeparse import timeparse
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support.expected_conditions import \
     element_to_be_clickable as clickable, \
-    presence_of_element_located as presence, \
+    presence_of_element_located as present, \
+    presence_of_all_elements_located as all_present, \
     staleness_of as stale, \
     visibility_of as visible
 
@@ -21,11 +23,29 @@ class BasePage(object):
     def __init__(self, driver):
         self.driver = driver
 
+    def reload(self):
+        self.driver.refresh()
+
+    def default_frame(self):
+        self.driver.switch_to.default_content()
+
+    def js(self, *args):
+        self.driver.execute_script(*args)
+
+    def switch_frame(self, frame_elem):
+        self.driver.switch_to.frame(frame_elem)
+
     def get_element(self, locator, condition=clickable):
         if condition is not None:
             return WebDriverWait(self.driver, 10).until(condition(locator))
         else:
             return self.driver.find_element(*locator)
+
+    def get_elements(self, locator, condition=all_present):
+        if condition is not None:
+            return WebDriverWait(self.driver, 10).until(condition(locator))
+        else:
+            return self.driver.find_elements(*locator)
 
     def set_checkbox(self, cb, enabled):
         if enabled and not cb.is_selected():
@@ -37,15 +57,15 @@ class LoginPage(BasePage):
 
     @property
     def username_input(self):
-        return self.driver.find_element(*LoginLocators.USERNAME_INPUT)
+        return self.get_element(LoginLocators.USERNAME_INPUT)
 
     @property
     def password_input(self):
-        return self.driver.find_element(*LoginLocators.PASSWORD_INPUT)
+        return self.get_element(LoginLocators.PASSWORD_INPUT)
 
     @property
     def submit(self):
-        return self.driver.find_element(*LoginLocators.SUBMIT_BUTTON)
+        return self.get_element(LoginLocators.SUBMIT_BUTTON)
 
     def login(self, username, password):
         self.username_input.send_keys(username)
@@ -58,11 +78,11 @@ class AdminPage(BasePage):
     def recordings_tab(self):
         return self.get_element(AdminLocators.RECORDINGS_TAB)
 
-    @property
-    def upload_button(self):
-        return self.get_element(AdminLocators.UPLOAD_BUTTON)
+class RecordingsPage(AdminPage):
 
-class RecordingsPage(BasePage):
+    @property
+    def upload_recording_button(self):
+        return self.get_element(RecordingsLocators.UPLOAD_RECORDING_BUTTON)
 
     @property
     def search_select(self):
@@ -91,17 +111,17 @@ class RecordingsPage(BasePage):
 
     @property
     def trim_links(self):
-        return self.driver.find_elements(*RecordingsLocators.TRIM_LINK)
+        return self.get_elements(RecordingsLocators.TRIM_LINK)
 
     def refresh_off(self):
-        if self.refresh_checkbox.is_selected():
-            self.refresh_checkbox.click()
+        self.set_checkbox(self.refresh_checkbox, False)
+        self.js('window.clearInterval(ocRecordings.refreshInterval);')
 
     def filter_recordings(self, field, value):
         self.search_select.select_by_value(field)
         self.search_input.send_keys(value)
         self.search_input.send_keys(Keys.RETURN)
-        found = self.get_element(RecordingsLocators.FILTER_FOUND_COUNT, presence)
+        found = self.get_element(RecordingsLocators.FILTER_FOUND_COUNT, present)
         return found
 
     def max_per_page(self):
@@ -113,7 +133,6 @@ class RecordingsPage(BasePage):
         throw exceptions about not being clickable at point blah, blah
         """
         self.driver.execute_script("arguments[0].click();", tab_elem)
-
 
 class UploadPage(BasePage):
 
@@ -203,7 +222,7 @@ class UploadPage(BasePage):
 
     @property
     def file_input_iframes(self):
-        return self.driver.find_elements(*UploadLocators.FILE_INPUT_IFRAME)
+        return self.get_elements(UploadLocators.FILE_INPUT_IFRAME)
 
     @property
     def local_file_selector(self):
@@ -276,13 +295,17 @@ class UploadPage(BasePage):
             self.inbox_file_select.select_by_value(file)
         else:
             # NOTE: this will silently fail if it's not an absolute path to an existing file
-            self.local_file_selector.send_keys(file)
+            self.local_file_selector.send_keys(abspath(file))
         self.driver.switch_to.default_content()
 
     def wait_for_upload_finish(self):
         WebDriverWait(self.driver, 1000000).until_not(visible(self.upload_progress_dialog))
 
 class TrimPage(BasePage):
+
+    @property
+    def shortcut_table(self):
+        return self.get_element(TrimLocators.SHORTCUT_TABLE)
 
     @property
     def trim_begin_input(self):
@@ -310,12 +333,23 @@ class TrimPage(BasePage):
 
     def trim(self):
         self.clear_button.click()
-        media_length = timeparse(self.trim_end_input.get_attribute('value'))
-        trim_length = media_length / 10
-        self.trim_begin_input.clear()
-        self.trim_begin_input.send_keys(str(datetime.timedelta(seconds=trim_length)))
-        self.trim_ok_button.click()
-        sleep(2)
-        self.split_remover.click()
+        # safe to assume media is > 10 seconds?
+        self.shortcut_table.send_keys("l" * 10)
+        sleep(1)
+        self.shortcut_table.send_keys("v")
+        sleep(1)
+        self.shortcut_table.send_keys(Keys.ARROW_UP)
+        sleep(1)
+        self.shortcut_table.send_keys(Keys.DELETE)
+        sleep(1)
+
+        # media_length = timeparse(self.trim_end_input.get_attribute('value'))
+        # trim_length = media_length / 10
+        # self.trim_begin_input.clear()
+        # self.trim_begin_input.send_keys(str(datetime.timedelta(seconds=trim_length)))
+        # self.trim_ok_button.click()
+        # sleep(2)
+        # self.split_remover.click()
+
         self.continue_button.click()
         sleep(2)

@@ -32,8 +32,8 @@ def cli():
 @init_driver('/admin')
 def upload(state, presenter, presentation, combined, inbox, live_stream):
 
-    page = AdminPage(state.driver)
-    page.upload_button.click()
+    page = RecordingsPage(state.driver)
+    page.upload_recording_button.click()
 
     page = UploadPage(state.driver)
     page.title_input.send_keys("My Test Upload")
@@ -56,23 +56,46 @@ def upload(state, presenter, presentation, combined, inbox, live_stream):
 @init_driver('/admin')
 def trim(state, filter=None, count=None):
 
+    page = AdminPage(state.driver)
+    page.recordings_tab.click()
     page = RecordingsPage(state.driver)
     page.max_per_page()
     page.switch_to_tab(page.on_hold_tab)
-    page.refresh_off()
 
     if filter is not None:
         field, value = filter.split(':', 1)
         page.filter_recordings(field, value)
 
-    for link in page.trim_links[:count]:
+    link_idx = 0
+    while True:
+
+        # kinda annoying that we have to do this each time
+        page.refresh_off()
+
+        try:
+            # re-resolve the trim link elements each time because the refs go
+            # stale when the page reloads
+            # also, iterate via incrementing idx so that we don't somehow trim
+            # the same thing > once (e.g. the entry doesn't get removed from
+            # the table because the workflow hasn't actually resumed)
+            link = page.trim_links[link_idx]
+        except IndexError:
+            break
+
         href = link.get_attribute('href')
         scheme, js = href.split(':', 1)
-        state.driver.execute_script(js)
-        state.driver.switch_to.frame(page.trim_iframe)
+        page.js(js)
+        page.switch_frame(page.trim_iframe)
         page = TrimPage(state.driver)
         page.trim()
-        state.driver.switch_to.default_content()
+        page.default_frame()
+        page.reload()
+        page = RecordingsPage(state.driver)
+
+        if count is not None:
+            count -= 1
+            if count == 0:
+                break
 
 @cli.group()
 @pass_state

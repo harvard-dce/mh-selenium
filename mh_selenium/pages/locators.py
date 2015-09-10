@@ -8,9 +8,9 @@ class LoginLocators(object):
 
 class AdminLocators(object):
     RECORDINGS_TAB = (By.CSS_SELECTOR, 'a#i18n_tab_recording')
-    UPLOAD_BUTTON = (By.CSS_SELECTOR, 'button#uploadButton')
 
 class RecordingsLocators(object):
+    UPLOAD_RECORDING_BUTTON = (By.CSS_SELECTOR, 'button#uploadButton')
     SEARCH_SELECT = (By.CSS_SELECTOR, 'div#searchBox > select')
     SEARCH_INPUT = (By.CSS_SELECTOR, 'div#searchBox > span > input')
     FILTER_FOUND_COUNT = (By.CSS_SELECTOR, 'span#filterRecordingCount')
@@ -59,6 +59,7 @@ class UploadLocators(object):
     UPLOAD_PROGRESS_DIALOG = (By.CSS_SELECTOR, 'div#progressStage')
 
 class TrimLocators(object):
+    SHORTCUT_TABLE = (By.CSS_SELECTOR, 'div#rightBox')
     CLIP_BEGIN_INPUT = (By.CSS_SELECTOR, 'span#clipBegin > input')
     CLIP_END_INPUT = (By.CSS_SELECTOR, 'span#clipEnd > input')
     CLIP_OK_BUTTON = (By.CSS_SELECTOR, 'input#okButton')

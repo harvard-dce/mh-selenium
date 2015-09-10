@@ -1,4 +1,5 @@
 selenium
-click
+click>=5
 pytimeparse
 fabric
+unipath

@@ -7,7 +7,7 @@ from fabric.context_managers import cd
 click.disable_unicode_literals_warning = True
 
 from unipath import Path
-from fabric.api import run, abort, env, hide
+from fabric.api import run, abort, env, hide, sudo
 from fabric.operations import put
 from fabric.colors import cyan
 from fabric.contrib.files import exists as remote_exists
@@ -95,13 +95,15 @@ def inbox_put(state, file):
 @pass_state
 @init_fabric
 def inbox_symlink(state, file, count):
-    remote_path = Path(state.inbox_path).child(file)
+
+    remote_path = state.inbox_dest.child(file)
+    if not remote_exists(remote_path, verbose=True):
+        abort("remote file {} not found".format(remote_path))
+
     with cd(state.inbox_path):
-        if not remote_exists(file, verbose=True):
-            abort("remote file {} not found".format(remote_path))
         for i in range(count):
             link = remote_path.stem + '_' + str(i) + remote_path.ext
-            run("ln -s {} {}".format(file, link))
+            sudo("ln -s {} {}".format(remote_path, link))
         return
 
 @inbox.command(name='list')

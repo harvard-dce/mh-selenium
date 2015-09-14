@@ -1,13 +1,13 @@
 
 ## mh-selenium
 
-Selenium script for DCE Matterhorn
+Selenium stuff for DCE Matterhorn
 
 ## Getting started
 
-1. Create a virtualenv: `virtualenv venv && source venv/bin/activate`
-2. Install the requirements: `pip install -r requirements.txt`
-3. `./driver.py --help` for commands and `./driver.py [cmd] --help` for options
+1. Create & activate a virtualenv: `virtualenv venv && source venv/bin/activate`
+2. `pip install dce-mh-selenium`
+3. `mh_driver --help` for commands and `mh_driver [cmd] --help` for command options
 
 ## Example process
 

@@ -3,6 +3,7 @@ from time import sleep
 
 import click
 from fabric.context_managers import cd
+from selenium.common.exceptions import TimeoutException
 
 click.disable_unicode_literals_warning = True
 
@@ -36,8 +37,8 @@ def upload(state, presenter, presentation, combined, inbox, live_stream):
     page.upload_recording_button.click()
 
     page = UploadPage(state.driver)
-    page.title_input.send_keys("My Test Upload")
-    page.type_input.send_keys("L01")
+    page.enter_text(page.title_input, "My Test Upload")
+    page.enter_text(page.type_input, "L01")
     page.set_upload_files(presenter=presenter,
                           presentation=presentation,
                           combined=combined,
@@ -79,7 +80,7 @@ def trim(state, filter=None, count=None):
             # the same thing > once (e.g. the entry doesn't get removed from
             # the table because the workflow hasn't actually resumed)
             link = page.trim_links[link_idx]
-        except IndexError:
+        except (TimeoutException,IndexError):
             break
 
         href = link.get_attribute('href')
@@ -125,7 +126,7 @@ def inbox_symlink(state, file, count):
 
     with cd(state.inbox_path):
         for i in range(count):
-            link = remote_path.stem + '_' + str(i) + remote_path.ext
+            link = remote_path.stem + '_' + str(i + 1) + remote_path.ext
             sudo("ln -s {} {}".format(remote_path, link))
         return
 

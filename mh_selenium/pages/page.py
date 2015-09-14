@@ -11,7 +11,8 @@ from selenium.webdriver.support.expected_conditions import \
     presence_of_element_located as present, \
     presence_of_all_elements_located as all_present, \
     staleness_of as stale, \
-    visibility_of as visible
+    visibility_of as visible, \
+    text_to_be_present_in_element_value as elem_value
 
 from locators import RecordingsLocators, \
                                              UploadLocators, \
@@ -52,6 +53,12 @@ class BasePage(object):
             cb.click()
         elif not enabled and cb.is_selected():
             cb.click()
+
+    def enter_text(self, elem, text):
+        elem.send_keys(text)
+        return WebDriverWait(self.driver, 10).until(
+            lambda x: elem.get_attribute('value') == text
+        )
 
 class LoginPage(BasePage):
 
@@ -333,8 +340,9 @@ class TrimPage(BasePage):
 
     def trim(self):
         self.clear_button.click()
+        sleep(1)
         # safe to assume media is > 10 seconds?
-        self.shortcut_table.send_keys("l" * 10)
+        self.shortcut_table.send_keys("l" * 20)
         sleep(1)
         self.shortcut_table.send_keys("v")
         sleep(1)

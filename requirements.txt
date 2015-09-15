@@ -3,3 +3,6 @@ click==5.1
 fabric==1.10.2
 pytimeparse==1.1.5
 unipath==1.1
+behave==1.2.5
+splinter==0.7.3
+PyHamcrest==1.8.5

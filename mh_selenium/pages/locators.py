@@ -2,9 +2,9 @@
 from selenium.webdriver.common.by import By
 
 class LoginLocators(object):
-    USERNAME_INPUT = (By.NAME, 'j_username')
-    PASSWORD_INPUT = (By.NAME, 'j_password')
-    SUBMIT_BUTTON = (By.NAME, 'submit')
+    USERNAME_INPUT = (By.CSS_SELECTOR, 'input[name=j_username]')
+    PASSWORD_INPUT = (By.CSS_SELECTOR, 'input[name=j_password]')
+    SUBMIT_BUTTON = (By.CSS_SELECTOR, 'input[name=submit]')
 
 class AdminLocators(object):
     RECORDINGS_TAB = (By.CSS_SELECTOR, 'a#i18n_tab_recording')

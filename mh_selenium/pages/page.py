@@ -4,6 +4,7 @@ from time import sleep
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.common.keys import Keys
 from pytimeparse.timeparse import timeparse
+from contextlib import contextmanager
 
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support.expected_conditions import \
@@ -21,8 +22,8 @@ from locators import RecordingsLocators, \
                                              AdminLocators
 
 class BasePage(object):
-    def __init__(self, driver):
-        self.driver = driver
+    def __init__(self, browser):
+        self.browser = browser
 
     def reload(self):
         self.driver.refresh()
@@ -37,16 +38,10 @@ class BasePage(object):
         self.driver.switch_to.frame(frame_elem)
 
     def get_element(self, locator, condition=clickable):
-        if condition is not None:
-            return WebDriverWait(self.driver, 10).until(condition(locator))
-        else:
-            return self.driver.find_element(*locator)
+        return self.get_elements(locator, condition).first
 
     def get_elements(self, locator, condition=all_present):
-        if condition is not None:
-            return WebDriverWait(self.driver, 10).until(condition(locator))
-        else:
-            return self.driver.find_elements(*locator)
+        return self.browser.find_by_css(locator[1])
 
     def set_checkbox(self, cb, enabled):
         if enabled and not cb.is_selected():
@@ -58,6 +53,14 @@ class BasePage(object):
         elem.send_keys(text)
         return WebDriverWait(self.driver, 10).until(
             lambda x: elem.get_attribute('value') == text
+        )
+
+    @contextmanager
+    def wait_for_page_unload(self, timeout=10):
+        old_page = self.browser.driver.find_element_by_tag_name('html')
+        yield
+        WebDriverWait(self.browser.driver, timeout).until(
+            stale(old_page)
         )
 
 class LoginPage(BasePage):
@@ -75,8 +78,8 @@ class LoginPage(BasePage):
         return self.get_element(LoginLocators.SUBMIT_BUTTON)
 
     def login(self, username, password):
-        self.username_input.send_keys(username)
-        self.password_input.send_keys(password)
+        self.username_input.fill(username)
+        self.password_input.fill(password)
         self.submit.click()
 
 class AdminPage(BasePage):

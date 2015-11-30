@@ -5,3 +5,8 @@ dce-mh-selenium change log
 ------------------
 
 Initial release!
+
+0.2.0 (2015-11-30)
+------------------
+
+Updated default inbox paths

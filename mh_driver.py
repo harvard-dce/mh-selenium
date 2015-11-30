@@ -26,18 +26,20 @@ def cli():
 @click.option('--presenter')
 @click.option('--presentation')
 @click.option('--combined')
+@click.option('--title', default='mh-selenium upload')
 @click.option('-i', '--inbox', is_flag=True)
 @click.option('--live_stream', is_flag=True)
 @selenium_options
 @pass_state
 @init_driver('/admin')
-def upload(state, presenter, presentation, combined, inbox, live_stream):
+def upload(state, presenter, presentation, combined, title, inbox, live_stream):
 
     page = RecordingsPage(state.driver)
     page.upload_recording_button.click()
 
     page = UploadPage(state.driver)
-    page.enter_text(page.title_input, "My Test Upload")
+
+    page.enter_text(page.title_input, title)
     page.enter_text(page.type_input, "L01")
     page.set_upload_files(presenter=presenter,
                           presentation=presentation,
@@ -109,7 +111,7 @@ def inbox(state):
 @pass_state
 @init_fabric
 def inbox_put(state, file):
-    result = put(local_path=file, remote_path=state.inbox_path, use_sudo=True)
+    result = put(local_path=file, remote_path=state.inbox, use_sudo=True)
     print(cyan("Files created: {}".format(str(result))))
 
 @inbox.command(name='symlink')
@@ -124,7 +126,7 @@ def inbox_symlink(state, file, count):
     if not remote_exists(remote_path, verbose=True):
         abort("remote file {} not found".format(remote_path))
 
-    with cd(state.inbox_path):
+    with cd(state.inbox):
         for i in range(count):
             link = remote_path.stem + '_' + str(i + 1) + remote_path.ext
             sudo("ln -s {} {}".format(remote_path, link))
@@ -136,6 +138,9 @@ def inbox_symlink(state, file, count):
 @pass_state
 @init_fabric
 def inbox_list(state, match):
+
+    if not remote_exists(state.inbox_dest):
+        return
     with cd(state.inbox_dest), hide('running', 'stdout', 'stderr'):
         output = run('ls {}'.format(match))
         for f in output.split():

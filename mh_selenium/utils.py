@@ -1,10 +1,15 @@
 import click
 from unipath import Path
 from fabric.api import env
+from fabric.contrib.files import exists as remote_exists
+from click.exceptions import UsageError
 from functools import wraps
 from urlparse import urljoin, urlsplit
 from selenium import webdriver
 from mh_selenium.pages import LoginPage
+
+OPSWORKS_INBOX_PATH = '/var/matterhorn/inbox'
+EC2_INBOX_PATH = '/home/data/opencast/inbox'
 
 class ClickState(object):
 
@@ -18,8 +23,19 @@ class ClickState(object):
         self.user = None
 
     @property
+    def inbox(self):
+        if self.inbox_path is not None:
+            return self.inbox_path
+        if remote_exists(OPSWORKS_INBOX_PATH):
+            return OPSWORKS_INBOX_PATH
+        elif remote_exists(EC2_INBOX_PATH):
+            return EC2_INBOX_PATH
+        else:
+            raise UsageError("Can't determine remote inbox path")
+
+    @property
     def inbox_dest(self):
-        return Path(self.inbox_path).parent.child('files','collection','inbox')
+        return Path(self.inbox).parent.child('files','collection','inbox')
 
 pass_state = click.make_pass_decorator(ClickState, ensure=True)
 
@@ -32,12 +48,14 @@ def password_option(f):
     return click.option('-p','--password',
                         expose_value=False,
                         prompt=True,
+                        help='MH admin login password',
                         callback=common_callback)(f)
 
 def username_option(f):
     return click.option('-u','--username',
                         expose_value=False,
                         prompt=True,
+                        help='MH admin login username',
                         callback=common_callback)(f)
 
 def base_url_arg(f):
@@ -47,20 +65,21 @@ def base_url_arg(f):
 
 def user_option(f):
     return click.option('-u','--user',
-                        default='ansible',
                         expose_value=False,
+                        help='The user to execute remote tasks as',
                         callback=common_callback)(f)
 
 def host_option(f):
     return click.option('-H','--host',
                         expose_value=False,
+                        help='host/ip of remote admin node',
                         callback=common_callback)(f)
 
 def inbox_path_option(f):
     return click.option('-i', '--inbox_path',
-                          default='/home/data/opencast/inbox',
-                          expose_value=False,
-                          callback=common_callback)(f)
+                        expose_value=False,
+                        help='alternate path to recording inbox',
+                        callback=common_callback)(f)
 
 def selenium_options(f):
     f = password_option(f)
@@ -80,7 +99,8 @@ def init_fabric(click_cmd):
 
         # set up the fabric env
         env.host_string = state.host
-        env.user = state.user
+        if state.user is not None:
+            env.user = state.user
 
         return click_cmd(state, *args, **kwargs)
     return wrapped
@@ -107,3 +127,5 @@ def init_driver(init_path=''):
 
         return _wrapped_cmd
     return decorator
+
+

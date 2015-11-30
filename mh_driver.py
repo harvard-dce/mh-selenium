@@ -2,12 +2,13 @@
 from time import sleep
 
 import click
+from click.exceptions import UsageError
 from fabric.context_managers import cd
 from selenium.common.exceptions import TimeoutException
 
 click.disable_unicode_literals_warning = True
 
-from unipath import Path
+from os.path import basename, exists, getsize
 from fabric.api import run, abort, env, hide, sudo
 from fabric.operations import put
 from fabric.colors import cyan
@@ -111,7 +112,15 @@ def inbox(state):
 @pass_state
 @init_fabric
 def inbox_put(state, file):
-    result = put(local_path=file, remote_path=state.inbox, use_sudo=True)
+    if file.startswith('http'):
+        with cd(state.inbox):
+            sudo("curl -s -o %s %s" % (basename(file), file))
+        result = state.inbox + '/' + basename(file)
+    elif exists(file):
+        size_in_bytes = getsize(file)
+        if size_in_bytes / (1024 * 1024) > 1024:
+            raise UsageError("File > 1G. Upload to s3 and use the url instead.")
+        result = put(local_path=file, remote_path=state.inbox, use_sudo=True)
     print(cyan("Files created: {}".format(str(result))))
 
 @inbox.command(name='symlink')

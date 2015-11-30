@@ -10,3 +10,8 @@ Initial release!
 ------------------
 
 Updated default inbox paths
+
+0.3.0 (2015-11-30)
+------------------
+
+Allow "upload" from s3. disallow upload from local for files > 1g.

@@ -22,7 +22,10 @@ a passphraseless ssh key or AWS instance profiles set up.
 #### 1. Upload the initial media to the inbox
 
 `mh_driver inbox put -H [admin ip] -f path/to/presenter.mp4`
-`mh_driver inbox put -H [admin ip] -f path/to/presentation.mp4`
+
+Use an s3 url for files > 1g:
+
+`mh_driver inbox put -H [admin ip] -f https://s3.amazonaws.com/my-bucket/presenter.mp4`
 
 #### 2. Create symlinks
 

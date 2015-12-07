@@ -9,33 +9,32 @@ here = os.path.abspath(os.path.dirname(__file__))
 def read(path):
     return codecs.open(os.path.join(here, path), 'r', 'utf-8').read()
 
-readme = read('README.md')
-history = read('HISTORY.md')
-version_file = read('mh_selenium/__init__.py')
+version_file = read('mh_cli/__init__.py')
 version = re.search(r"^__version__ = ['\"]([^'\"]*)['\"]", version_file, re.M).group(1)
 
 install_requires = [
-    "selenium==2.47.1",
+    "selenium>=2.47.1",
     "click==5.1",
     "fabric==1.10.2",
     "pytimeparse==1.1.5",
     "unipath==1.1",
+    "pytest>=2.8.1",
+    "pytest-ghostinspector>=0.1.2"
 ]
 
 setup(
-    name='dce-mh-selenium',
+    name='mh-ui-testing',
     version=version,
     packages=find_packages(),
-    url='https://github.com/harvard-dce/mh-selenium',
+    url='https://github.com/harvard-dce/mh-ui-testing',
     license='Apache 2.0',
     author='Jay Luker',
     author_email='jay_luker@harvard.edu',
-    description='Selenium tasks and page objects for DCE Matterhorn',
-    long_description=readme + '\n\n' + history,
+    description='Automated admin tasks and tests DCE Matterhorn',
     install_requires=install_requires,
-    py_modules=["mh_driver", "mh_selenium"],
+    py_modules=["mh", "mh_pages"],
     entry_points='''
         [console_scripts]
-        mh_driver=mh_driver:cli
+        mh=mh:cli
     '''
 )

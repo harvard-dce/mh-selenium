@@ -6,7 +6,7 @@ from click.exceptions import UsageError
 from functools import wraps
 from urlparse import urljoin, urlsplit
 from selenium import webdriver
-from mh_selenium.pages import LoginPage
+from mh_pages.pages import LoginPage
 
 OPSWORKS_INBOX_PATH = '/var/matterhorn/inbox'
 EC2_INBOX_PATH = '/home/data/opencast/inbox'

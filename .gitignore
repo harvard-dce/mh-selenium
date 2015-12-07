@@ -21,3 +21,7 @@ pip-log.txt
 .DS_Store
 
 tmp
+
+# pytest stuff
+pytest.ini
+.cache

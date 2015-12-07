@@ -14,9 +14,9 @@ from fabric.operations import put
 from fabric.colors import cyan
 from fabric.contrib.files import exists as remote_exists
 
-from mh_selenium.utils import selenium_options, inbox_options, pass_state, \
-    init_driver, base_url_arg, init_fabric
-from mh_selenium.pages import RecordingsPage, AdminPage, TrimPage, \
+from mh_cli.cli import selenium_options, inbox_options, pass_state, \
+    init_driver, init_fabric
+from mh_pages.pages import RecordingsPage, AdminPage, TrimPage, \
                               UploadPage
 
 @click.group()

@@ -121,6 +121,8 @@ def inbox_put(state, file):
         if size_in_bytes / (1024 * 1024) > 1024:
             raise UsageError("File > 1G. Upload to s3 and use the url instead.")
         result = put(local_path=file, remote_path=state.inbox, use_sudo=True)
+    else:
+        raise UsageError("Local file %s not found" % file)
     print(cyan("Files created: {}".format(str(result))))
 
 @inbox.command(name='symlink')

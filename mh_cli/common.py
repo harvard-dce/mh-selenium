@@ -1,12 +1,13 @@
+
 import click
 from unipath import Path
 from fabric.api import env
-from fabric.contrib.files import exists as remote_exists
-from click.exceptions import UsageError
 from functools import wraps
-from urlparse import urljoin, urlsplit
+from urlparse import urljoin
 from selenium import webdriver
 from mh_pages.pages import LoginPage
+from click.exceptions import UsageError
+from fabric.contrib.files import exists as remote_exists
 
 OPSWORKS_INBOX_PATH = '/var/matterhorn/inbox'
 EC2_INBOX_PATH = '/home/data/opencast/inbox'
@@ -36,6 +37,8 @@ class ClickState(object):
     @property
     def inbox_dest(self):
         return Path(self.inbox).parent.child('files','collection','inbox')
+
+pass_state = click.make_pass_decorator(ClickState, ensure=True)
 
 def common_callback(ctx, option, value):
     state = ctx.ensure_object(ClickState)
@@ -125,5 +128,3 @@ def init_driver(init_path=''):
 
         return _wrapped_cmd
     return decorator
-
-

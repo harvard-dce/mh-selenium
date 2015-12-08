@@ -37,8 +37,6 @@ class ClickState(object):
     def inbox_dest(self):
         return Path(self.inbox).parent.child('files','collection','inbox')
 
-pass_state = click.make_pass_decorator(ClickState, ensure=True)
-
 def common_callback(ctx, option, value):
     state = ctx.ensure_object(ClickState)
     setattr(state, option.name, value)

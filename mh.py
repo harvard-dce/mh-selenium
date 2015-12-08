@@ -8,16 +8,24 @@ from selenium.common.exceptions import TimeoutException
 
 click.disable_unicode_literals_warning = True
 
-from os.path import basename, exists, getsize
-from fabric.api import run, abort, env, hide, sudo
+from os.path import basename, exists, getsize, dirname
+from fabric.api import run, abort, hide, sudo, local, lcd
 from fabric.operations import put
 from fabric.colors import cyan
 from fabric.contrib.files import exists as remote_exists
 
-from mh_cli.cli import selenium_options, inbox_options, pass_state, \
-    init_driver, init_fabric
-from mh_pages.pages import RecordingsPage, AdminPage, TrimPage, \
-                              UploadPage
+from mh_cli.cli import selenium_options, \
+                       inbox_options, \
+                       ClickState, \
+                       init_driver, \
+                       init_fabric
+
+from mh_pages.pages import RecordingsPage, \
+                           AdminPage, \
+                           TrimPage, \
+                           UploadPage
+
+pass_state = click.make_pass_decorator(ClickState, ensure=True)
 
 @click.group()
 def cli():
@@ -34,6 +42,7 @@ def cli():
 @pass_state
 @init_driver('/admin')
 def upload(state, presenter, presentation, combined, title, inbox, live_stream):
+    """Execute an automated recording upload"""
 
     page = RecordingsPage(state.driver)
     page.upload_recording_button.click()
@@ -59,6 +68,7 @@ def upload(state, presenter, presentation, combined, title, inbox, live_stream):
 @pass_state
 @init_driver('/admin')
 def trim(state, filter=None, count=None):
+    """Execute a trim operation on existing recording(s)"""
 
     page = AdminPage(state.driver)
     page.recordings_tab.click()
@@ -101,10 +111,31 @@ def trim(state, filter=None, count=None):
             if count == 0:
                 break
 
+
 @cli.group()
-@pass_state
-def inbox(state):
-    pass
+def gi():
+    """Do stuff with Ghost Inspector tests"""
+
+
+@gi.command(name='list', context_settings=dict(ignore_unknown_options=True))
+@click.argument('gi_args', nargs=-1, type=click.UNPROCESSED)
+def gi_list(gi_args):
+    """Collect and list available tests"""
+    with(lcd(dirname(__file__))):
+        local("py.test --verbose --collect-only %s" % " ".join(gi_args))
+
+
+@gi.command(name='exec', context_settings=dict(ignore_unknown_options=True))
+@click.argument('gi_args', nargs=-1, type=click.UNPROCESSED)
+def gi_exec(gi_args):
+    """Execute tests"""
+    with(lcd(dirname(__file__))):
+        local("py.test --verbose %s" % " ".join(gi_args))
+
+
+@cli.group()
+def inbox():
+    """Manipulate the MH recording file inbox"""
 
 @inbox.command(name='put')
 @click.option('-f', '--file')
@@ -112,6 +143,7 @@ def inbox(state):
 @pass_state
 @init_fabric
 def inbox_put(state, file):
+    """Upload a recording file to the MH inbox"""
     if file.startswith('http'):
         with cd(state.inbox):
             sudo("curl -s -o %s %s" % (basename(file), file))
@@ -132,7 +164,7 @@ def inbox_put(state, file):
 @pass_state
 @init_fabric
 def inbox_symlink(state, file, count):
-
+    """Create copies of an existing inbox file via symlinks"""
     remote_path = state.inbox_dest.child(file)
     if not remote_exists(remote_path, verbose=True):
         abort("remote file {} not found".format(remote_path))
@@ -149,7 +181,7 @@ def inbox_symlink(state, file, count):
 @pass_state
 @init_fabric
 def inbox_list(state, match):
-
+    """List the current contents of the inbox"""
     if not remote_exists(state.inbox_dest):
         return
     with cd(state.inbox_dest), hide('running', 'stdout', 'stderr'):

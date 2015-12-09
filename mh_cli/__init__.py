@@ -10,3 +10,4 @@ def cli():
 from gi import gi
 from inbox import inbox
 from tasks import *
+from series import series

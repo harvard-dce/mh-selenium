@@ -14,13 +14,14 @@ __all__ = ['upload', 'trim']
 @click.option('--presenter')
 @click.option('--presentation')
 @click.option('--combined')
+@click.option('--series')
 @click.option('--title', default='mh-selenium upload')
 @click.option('-i', '--inbox', is_flag=True)
 @click.option('--live_stream', is_flag=True)
 @selenium_options
 @pass_state
 @init_driver('/admin')
-def upload(state, presenter, presentation, combined, title, inbox, live_stream):
+def upload(state, presenter, presentation, combined, series, title, inbox, live_stream):
     """Execute an automated recording upload"""
 
     page = RecordingsPage(state.driver)
@@ -30,6 +31,10 @@ def upload(state, presenter, presentation, combined, title, inbox, live_stream):
 
     page.enter_text(page.title_input, title)
     page.enter_text(page.type_input, "L01")
+
+    if series is not None:
+        page.set_series(series)
+
     page.set_upload_files(presenter=presenter,
                           presentation=presentation,
                           combined=combined,

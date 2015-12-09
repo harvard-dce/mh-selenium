@@ -1,8 +1,10 @@
 import datetime
 from os.path import abspath
 from time import sleep
+from urlparse import urljoin
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.by import By
 from pytimeparse.timeparse import timeparse
 
 from selenium.webdriver.support.ui import WebDriverWait
@@ -59,6 +61,23 @@ class BasePage(object):
         return WebDriverWait(self.driver, 10).until(
             lambda x: elem.get_attribute('value') == text
         )
+
+class ApiDocPage(BasePage):
+
+    def __init__(self, driver, doc_page_url):
+        super(ApiDocPage, self).__init__(driver)
+        self.driver.get(doc_page_url)
+        # go ahead and reveal all the testing forms
+        self.js("$('div.hidden_form').show()")
+
+    def submit_form(self, form_id, data):
+        for field_id, value in data.items():
+            sel = "#%s #%s" % (form_id, field_id)
+            elem = self.get_element((By.CSS_SELECTOR, sel))
+            elem.clear()
+            elem.send_keys(value)
+        self.get_element((By.CSS_SELECTOR, "#%s" % form_id)).submit()
+
 
 class LoginPage(BasePage):
 
@@ -150,6 +169,18 @@ class UploadPage(BasePage):
     @property
     def presenter_input(self):
         return self.get_element(UploadLocators.PRESENTER_INPUT)
+
+    @property
+    def series_input(self):
+        return self.get_element(UploadLocators.SERIES_INPUT)
+
+    @property
+    def series_filter(self):
+        return self.get_element(UploadLocators.SERIES_FILTER)
+
+    @property
+    def series_autocomplete_items(self):
+        return self.get_elements(UploadLocators.SERIES_AUTOCOMPLETE_ITEM)
 
     @property
     def course_input(self):
@@ -262,6 +293,12 @@ class UploadPage(BasePage):
     @property
     def upload_progress_dialog(self):
         return self.get_element(UploadLocators.UPLOAD_PROGRESS_DIALOG)
+
+    def set_series(self, series):
+        self.series_filter.clear()
+        self.enter_text(self.series_input, series)
+        sleep(1)
+        self.series_autocomplete_items[0].click()
 
     def set_live_stream(self, enabled):
         self.set_checkbox(self.live_stream_checkbox, enabled)

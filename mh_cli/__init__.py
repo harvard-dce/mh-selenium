@@ -1,4 +1,4 @@
-__version__ = '0.5.0'
+__version__ = '0.6.0'
 
 import click
 click.disable_unicode_literals_warning = True
@@ -10,3 +10,4 @@ def cli():
 from gi import gi
 from inbox import inbox
 from tasks import *
+from series import series

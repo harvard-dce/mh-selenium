@@ -23,6 +23,9 @@ class RecordingsLocators(object):
 class UploadLocators(object):
     TITLE_INPUT = (By.CSS_SELECTOR, 'input#title')
     PRESENTER_INPUT = (By.CSS_SELECTOR, 'input#creator')
+    SERIES_INPUT = (By.CSS_SELECTOR, 'input#seriesSelect')
+    SERIES_FILTER = (By.CSS_SELECTOR, 'input#dceTermFilter')
+    SERIES_AUTOCOMPLETE_ITEM = (By.CSS_SELECTOR, 'ul.ui-autocomplete a')
     COURSE_INPUT = (By.CSS_SELECTOR, 'input#seriesSelect')
     LICENSE_SELECT = (By.CSS_SELECTOR, 'select#licenseField')
     REC_DATE_INPUT = (By.CSS_SELECTOR, 'input#recordDate')

@@ -25,3 +25,5 @@ tmp
 # pytest stuff
 pytest.ini
 .cache
+
+*.mp4

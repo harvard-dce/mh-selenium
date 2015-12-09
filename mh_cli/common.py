@@ -1,5 +1,7 @@
 
+import re
 import click
+import socket
 from unipath import Path
 from fabric.api import env
 from functools import wraps
@@ -17,11 +19,14 @@ class ClickState(object):
     def __init__(self):
         self.username = None
         self.password = None
-        self.base_url = None
         self.driver = None
         self.inbox_path = None
         self.host = None
         self.user = None
+
+    @property
+    def base_url(self):
+        return 'http://' + self.host + '/'
 
     @property
     def inbox(self):
@@ -45,6 +50,11 @@ def common_callback(ctx, option, value):
     setattr(state, option.name, value)
     return value
 
+def host_callback(ctx, option, value):
+    state = ctx.ensure_object(ClickState)
+    setattr(state, 'host', socket.gethostbyaddr(value)[0])
+    return value
+
 def password_option(f):
     return click.option('-p','--password',
                         expose_value=False,
@@ -59,11 +69,6 @@ def username_option(f):
                         help='MH admin login username',
                         callback=common_callback)(f)
 
-def base_url_arg(f):
-    return click.argument('base_url',
-                          expose_value=False,
-                          callback=common_callback)(f)
-
 def user_option(f):
     return click.option('-u','--user',
                         expose_value=False,
@@ -74,7 +79,7 @@ def host_option(f):
     return click.option('-H','--host',
                         expose_value=False,
                         help='host/ip of remote admin node',
-                        callback=common_callback)(f)
+                        callback=host_callback)(f)
 
 def inbox_path_option(f):
     return click.option('-i', '--inbox_path',
@@ -85,7 +90,7 @@ def inbox_path_option(f):
 def selenium_options(f):
     f = password_option(f)
     f = username_option(f)
-    f = base_url_arg(f)
+    f = host_option(f)
     return f
 
 def inbox_options(f):

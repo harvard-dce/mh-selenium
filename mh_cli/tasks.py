@@ -11,18 +11,18 @@ from mh_pages.pages import RecordingsPage, \
 __all__ = ['upload', 'trim']
 
 @cli.command()
-@click.option('--presenter')
-@click.option('--presentation')
-@click.option('--combined')
-@click.option('--series')
-@click.option('--title', default='mh-selenium upload')
-@click.option('-i', '--inbox', is_flag=True)
+@click.option('--presenter', help="Presenter video")
+@click.option('--presentation', help="Presentation video")
+@click.option('--combined', help="Combined presenter/presentation video")
+@click.option('--series', help="Series title. Should match an existing series.")
+@click.option('--title', default='mh-ui-testing upload', help="Recording title")
+@click.option('-i', '--inbox', is_flag=True, help="Use a MH inbox media file")
 @click.option('--live_stream', is_flag=True)
 @selenium_options
 @pass_state
 @init_driver('/admin')
 def upload(state, presenter, presentation, combined, series, title, inbox, live_stream):
-    """Execute an automated recording upload"""
+    """Upload a recording from a local path or the inbox"""
 
     page = RecordingsPage(state.driver)
     page.upload_recording_button.click()

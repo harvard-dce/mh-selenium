@@ -61,8 +61,11 @@ def series():
 
 @series.command()
 @selenium_options
-@click.option('--title', default='Test Offering')
-@click.option('--id', default=None)
+@click.option('--title', default='Test Offering', help="Title of the series")
+@click.option('--id', default=None,
+              help="Series identifier. If not specified " \
+                 + "this will be generated for you in the format '203501xxxxx' " \
+                 + "where 'xxxxx' is a random number sequence")
 @pass_state
 @init_driver('/admin')
 def create(state, title, id):

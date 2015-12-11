@@ -52,7 +52,8 @@ def common_callback(ctx, option, value):
 
 def host_callback(ctx, option, value):
     state = ctx.ensure_object(ClickState)
-    setattr(state, 'host', socket.gethostbyaddr(value)[0])
+    if value is not None:
+        setattr(state, 'host', socket.gethostbyaddr(value)[0])
     return value
 
 def password_option(f):

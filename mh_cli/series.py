@@ -15,7 +15,7 @@ CATALOG_XML = '''
     <dcterms:creator>Harvard Extension School</dcterms:creator>
     <dcterms:contributor>Henry H. Leitner</dcterms:contributor>
     <dcterms:description>http://extension.harvard.edu</dcterms:description>
-    <dcterms:subject>TEST S-39999</dcterms:subject>
+    <dcterms:subject>SERIES_SUBJECT</dcterms:subject>
     <dcterms:language>eng</dcterms:language>
     <dcterms:publisher>Harvard University, DCE</dcterms:publisher>
     <oc:annotation>true</oc:annotation>
@@ -62,19 +62,28 @@ def series():
 @series.command()
 @selenium_options
 @click.option('--title', default='Test Offering', help="Title of the series")
+@click.option('--subject', default=None,
+              help="Subject of the series. " \
+                + "If not specified this will take the form 'TEST S-xxxxx', " \
+                + "where 'xxxxx' is the last 5 digits of the identifier."
+              )
 @click.option('--id', default=None,
               help="Series identifier. If not specified " \
                  + "this will be generated for you in the format '203501xxxxx' " \
                  + "where 'xxxxx' is a random number sequence")
 @pass_state
 @init_driver('/admin')
-def create(state, title, id):
+def create(state, title, subject, id):
 
     if id is None:
         id = '203501' + ''.join([str(x) for x in random.sample(range(10), 5)])
 
+    if subject is None:
+        subject = 'TEST S-' + id[-5:]
+
     catalog_xml = CATALOG_XML.replace('SERIES_ID', id)
     catalog_xml = catalog_xml.replace('SERIES_TITLE', title)
+    catalog_xml = catalog_xml.replace('SERIES_SUBJECT', subject)
 
     doc_page_url = urljoin(state.base_url, '/docs.html?path=/series')
     page = ApiDocPage(state.driver, doc_page_url)

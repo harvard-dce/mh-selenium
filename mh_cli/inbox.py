@@ -49,7 +49,7 @@ def inbox_symlink(state, file, count):
     with cd(state.inbox):
         for i in range(count):
             link = remote_path.stem + '_' + str(i + 1) + remote_path.ext
-            sudo("ln -s {} {}".format(remote_path, link))
+            sudo("ln -sf {} {}".format(remote_path, link))
         return
 
 @inbox.command(name='list')
@@ -62,6 +62,6 @@ def inbox_list(state, match):
     if not remote_exists(state.inbox_dest):
         return
     with cd(state.inbox_dest), hide('running', 'stdout', 'stderr'):
-        output = run('ls {}'.format(match))
+        output = run('ls {} | grep -v "\.md5"'.format(match))
         for f in output.split():
             print(cyan(f))

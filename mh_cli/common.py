@@ -1,12 +1,12 @@
 
-import re
 import click
 import socket
+
+from splinter import Browser
 from unipath import Path
 from fabric.api import env
 from functools import wraps
 from urlparse import urljoin
-from selenium import webdriver
 from mh_pages.pages import LoginPage
 from click.exceptions import UsageError
 from fabric.contrib.files import exists as remote_exists
@@ -82,6 +82,13 @@ def host_option(f):
                         help='host/ip of remote admin node',
                         callback=host_callback)(f)
 
+def driver_option(f):
+    return click.option('-D', '--driver',
+                        expose_value=False,
+                        help='Selenium driver to use: firefox|chrome',
+                        default='firefox',
+                        callback=common_callback)(f)
+
 def inbox_path_option(f):
     return click.option('-i', '--inbox_path',
                         expose_value=False,
@@ -92,6 +99,7 @@ def selenium_options(f):
     f = password_option(f)
     f = username_option(f)
     f = host_option(f)
+    f = driver_option(f)
     return f
 
 def inbox_options(f):
@@ -112,23 +120,22 @@ def init_fabric(click_cmd):
         return click_cmd(state, *args, **kwargs)
     return wrapped
 
-def init_driver(init_path=''):
+def init_browser(init_path=''):
     def decorator(click_cmd):
         @wraps(click_cmd)
         def _wrapped_cmd(state, *args, **kwargs):
 
-            state.driver = webdriver.Firefox()
-            state.driver.implicitly_wait(10)
-            state.driver.get(urljoin(state.base_url, init_path))
+            state.browser = Browser(state.driver)
+            state.browser.visit(urljoin(state.base_url, init_path))
 
-            if 'Login' in state.driver.title:
-                page = LoginPage(state.driver)
-                page.login(state.username, state.password)
+            if 'Login' in state.browser.title:
+                page = LoginPage(state.browser)
+                with page.wait_for_page_change():
+                    page.login(state.username, state.password)
 
             result = click_cmd(state, *args, **kwargs)
 
-            state.driver.close()
-            state.driver.quit()
+            state.browser.quit()
 
             return result
 

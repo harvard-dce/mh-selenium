@@ -5,7 +5,7 @@ import random
 from mh_cli import cli
 
 from urlparse import urljoin
-from common import pass_state, init_driver, selenium_options
+from common import pass_state, init_browser, selenium_options
 from mh_pages.pages import ApiDocPage
 
 CATALOG_XML = '''
@@ -72,7 +72,7 @@ def series():
                  + "this will be generated for you in the format '203501xxxxx' " \
                  + "where 'xxxxx' is a random number sequence")
 @pass_state
-@init_driver('/admin')
+@init_browser('/admin')
 def create(state, title, subject, id):
 
     if id is None:
@@ -86,7 +86,7 @@ def create(state, title, subject, id):
     catalog_xml = catalog_xml.replace('SERIES_SUBJECT', subject)
 
     doc_page_url = urljoin(state.base_url, '/docs.html?path=/series')
-    page = ApiDocPage(state.driver, doc_page_url)
+    page = ApiDocPage(state.browser, doc_page_url)
 
     page.submit_form(
         'form_updateSeries',

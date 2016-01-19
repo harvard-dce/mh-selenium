@@ -9,5 +9,5 @@ def cli():
 
 from gi import gi
 from inbox import inbox
-from tasks import *
+from rec import rec
 from series import series

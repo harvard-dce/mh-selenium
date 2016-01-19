@@ -10,9 +10,11 @@ from mh_pages.pages import RecordingsPage, \
     TrimPage, \
     UploadPage
 
-__all__ = ['upload', 'trim']
+@cli.group()
+def rec():
+    pass
 
-@cli.command()
+@rec.command()
 @click.option('--presenter', help="Presenter video")
 @click.option('--presentation', help="Presentation video")
 @click.option('--combined', help="Combined presenter/presentation video")
@@ -56,7 +58,7 @@ def upload(state, presenter, presentation, combined, series, title, type, inbox,
     page.upload_button.click()
     page.wait_for_upload_finish()
 
-@cli.command()
+@rec.command()
 @click.option('-f', '--filter')
 @click.option('-c', '--count', type=int, default=None)
 @selenium_options

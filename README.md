@@ -88,9 +88,9 @@ uploads for files > 1G.
 
 ### series commands
 
-#### create
+#### series create
 
-    Usage: mh.py series create [OPTIONS]
+    Usage: mh series create [OPTIONS]
     
     Options:
       -D, --driver TEXT    Selenium driver to use: firefox|chrome
@@ -106,9 +106,11 @@ uploads for files > 1G.
                            'xxxxx' is a random number sequence
       --help               Show this message and exit.
 
-### upload
+### rec commands
 
-    Usage: mh upload [OPTIONS]
+#### rec upload
+
+    Usage: mh rec upload [OPTIONS]
     
       Upload a recording from a local path or the inbox
     
@@ -127,9 +129,9 @@ uploads for files > 1G.
       --help               Show this message and exit.
 
 
-### trim
+#### rec trim
 
-    Usage: mh trim [OPTIONS]
+    Usage: mh rec trim [OPTIONS]
     
       Execute trims on existing recording(s)
     

@@ -1,82 +1,82 @@
-import datetime
 from os.path import abspath
 from time import sleep
-from urlparse import urljoin
-from selenium.webdriver.support.ui import Select
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
-from pytimeparse.timeparse import timeparse
+from selenium.webdriver.support.select import Select
+from contextlib import contextmanager
 
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support.expected_conditions import \
-    element_to_be_clickable as clickable, \
-    presence_of_element_located as present, \
-    presence_of_all_elements_located as all_present, \
-    staleness_of as stale, \
-    visibility_of as visible, \
-    text_to_be_present_in_element_value as elem_value
+    visibility_of as visible, staleness_of
 
 from locators import RecordingsLocators, \
-                                             UploadLocators, \
-                                             TrimLocators, \
-                                             LoginLocators, \
-                                             AdminLocators
+                     UploadLocators, \
+                     TrimLocators, \
+                     LoginLocators, \
+                     AdminLocators
 
 class BasePage(object):
-    def __init__(self, driver):
-        self.driver = driver
+
+    def __init__(self, browser):
+        self.browser = browser
 
     def reload(self):
-        self.driver.refresh()
+        self.browser.reload()
 
     def default_frame(self):
         self.driver.switch_to.default_content()
 
     def js(self, *args):
-        self.driver.execute_script(*args)
+        self.browser.execute_script(*args)
 
-    def switch_frame(self, frame_elem):
-        self.driver.switch_to.frame(frame_elem)
+    @contextmanager
+    def switch_frame(self, iframe):
+        self.browser.driver.switch_to.frame(iframe._element)
+        yield
+        self.browser.driver.switch_to.default_content()
 
-    def get_element(self, locator, condition=clickable):
-        if condition is not None:
-            return WebDriverWait(self.driver, 10).until(condition(locator))
+    def clear(self, elem):
+        elem._element.clear()
+
+    def get_element(self, locator):
+        return self.get_elements(locator).first
+
+    def get_elements(self, locator):
+        get_by, selector = locator
+        if get_by == By.CSS_SELECTOR:
+            return self.browser.find_by_css(selector)
+        elif get_by == By.NAME:
+            return self.browser.find_by_name(selector)
         else:
-            return self.driver.find_element(*locator)
+            raise NotImplementedError()
 
-    def get_elements(self, locator, condition=all_present):
-        if condition is not None:
-            return WebDriverWait(self.driver, 10).until(condition(locator))
-        else:
-            return self.driver.find_elements(*locator)
+    def get_select(self, locator):
+        return Select(self.get_element(locator)._element)
 
-    def set_checkbox(self, cb, enabled):
-        if enabled and not cb.is_selected():
-            cb.click()
-        elif not enabled and cb.is_selected():
-            cb.click()
+    @contextmanager
+    def wait_for_page_change(self, tag='html', timeout=10):
+        old_ref = self.browser.find_by_tag(tag)._element
+        yield
+        WebDriverWait(self.browser.driver, timeout).until(staleness_of(old_ref))
 
-    def enter_text(self, elem, text):
-        elem.send_keys(text)
-        return WebDriverWait(self.driver, 10).until(
-            lambda x: elem.get_attribute('value') == text
-        )
+
 
 class ApiDocPage(BasePage):
 
-    def __init__(self, driver, doc_page_url):
-        super(ApiDocPage, self).__init__(driver)
-        self.driver.get(doc_page_url)
+    def __init__(self, browser, doc_page_url):
+        super(ApiDocPage, self).__init__(browser)
+        self.browser.visit(doc_page_url)
         # go ahead and reveal all the testing forms
         self.js("$('div.hidden_form').show()")
 
     def submit_form(self, form_id, data):
         for field_id, value in data.items():
             sel = "#%s #%s" % (form_id, field_id)
-            elem = self.get_element((By.CSS_SELECTOR, sel))
-            elem.clear()
-            elem.send_keys(value)
-        self.get_element((By.CSS_SELECTOR, "#%s" % form_id)).submit()
+            elem = self.browser.find_by_css(sel).first
+            elem.fill(value)
+        form = self.get_element((By.CSS_SELECTOR, "#%s" % form_id))
+        # drop down to selenium for convenience
+        form._element.submit()
 
 
 class LoginPage(BasePage):
@@ -94,8 +94,8 @@ class LoginPage(BasePage):
         return self.get_element(LoginLocators.SUBMIT_BUTTON)
 
     def login(self, username, password):
-        self.username_input.send_keys(username)
-        self.password_input.send_keys(password)
+        self.username_input.type(username)
+        self.password_input.type(password)
         self.submit.click()
 
 class AdminPage(BasePage):
@@ -112,42 +112,37 @@ class RecordingsPage(AdminPage):
 
     @property
     def search_select(self):
-        return Select(self.get_element(RecordingsLocators.SEARCH_SELECT, clickable))
+        return self.get_select(RecordingsLocators.SEARCH_SELECT)
 
     @property
     def search_input(self):
-        return self.get_element(RecordingsLocators.SEARCH_INPUT, clickable)
+        return self.get_element(RecordingsLocators.SEARCH_INPUT)
 
     @property
     def per_page_select(self):
-        return Select(self.get_element(RecordingsLocators.PERPAGE_SELECT, clickable))
+        return self.get_select(RecordingsLocators.PERPAGE_SELECT)
 
     @property
     def refresh_checkbox(self):
-        return self.get_element(RecordingsLocators.REFRESH_CHECKBOX, clickable)
+        return self.get_element(RecordingsLocators.REFRESH_CHECKBOX)
 
     @property
     def on_hold_tab(self):
-        return self.get_element(RecordingsLocators.ON_HOLD_TAB, clickable)
-
-
-    @property
-    def trim_iframe(self):
-        return self.get_element(RecordingsLocators.TRIM_IFRAME)
+        return self.get_element(RecordingsLocators.ON_HOLD_TAB)
 
     @property
     def trim_links(self):
         return self.get_elements(RecordingsLocators.TRIM_LINK)
 
     def refresh_off(self):
-        self.set_checkbox(self.refresh_checkbox, False)
+        self.refresh_checkbox.uncheck()
         self.js('window.clearInterval(ocRecordings.refreshInterval);')
 
     def filter_recordings(self, field, value):
         self.search_select.select_by_value(field)
         self.search_input.send_keys(value)
         self.search_input.send_keys(Keys.RETURN)
-        found = self.get_element(RecordingsLocators.FILTER_FOUND_COUNT, present)
+        found = self.get_element(RecordingsLocators.FILTER_FOUND_COUNT)
         return found
 
     def max_per_page(self):
@@ -158,7 +153,7 @@ class RecordingsPage(AdminPage):
         bypass the usual element click() method as these tab links frequently
         throw exceptions about not being clickable at point blah, blah
         """
-        self.driver.execute_script("arguments[0].click();", tab_elem)
+        self.browser.driver.execute_script("arguments[0].click();", tab_elem)
 
 class UploadPage(BasePage):
 
@@ -188,7 +183,7 @@ class UploadPage(BasePage):
 
     @property
     def license_select(self):
-        return Select(self.get_element(UploadLocators.LICENSE_SELECT))
+        return self.get_select(UploadLocators.LICENSE_SELECT)
 
     @property
     def rec_date_input(self):
@@ -196,11 +191,11 @@ class UploadPage(BasePage):
 
     @property
     def start_hour_select(self):
-        return Select(self.get_element(UploadLocators.START_HOUR_SELECT))
+        return self.get_select(UploadLocators.START_HOUR_SELECT)
 
     @property
     def start_minute_select(self):
-        return Select(self.get_element(UploadLocators.START_MINUTE_SELECT))
+        return self.get_select(UploadLocators.START_MINUTE_SELECT)
 
     @property
     def contributor_input(self):
@@ -268,7 +263,7 @@ class UploadPage(BasePage):
 
     @property
     def inbox_file_select(self):
-        return Select(self.get_element(UploadLocators.INBOX_FILE_SELECT))
+        return self.get_select(UploadLocators.INBOX_FILE_SELECT)
 
     @property
     def contains_slides_checkbox(self):
@@ -276,7 +271,7 @@ class UploadPage(BasePage):
 
     @property
     def workflow_select(self):
-        return Select(self.get_element(UploadLocators.WORKFLOW_SELECT))
+        return self.get_select(UploadLocators.WORKFLOW_SELECT)
 
     @property
     def live_stream_checkbox(self):
@@ -295,16 +290,9 @@ class UploadPage(BasePage):
         return self.get_element(UploadLocators.UPLOAD_PROGRESS_DIALOG)
 
     def set_series(self, series):
-        self.series_filter.clear()
-        self.enter_text(self.series_input, series)
-        sleep(1)
+        self.clear(self.series_filter)
+        self.series_input.type(series)
         self.series_autocomplete_items[0].click()
-
-    def set_live_stream(self, enabled):
-        self.set_checkbox(self.live_stream_checkbox, enabled)
-
-    def set_multitrack(self, enabled):
-        self.set_checkbox(self.multitrack_checkbox, enabled)
 
     def set_upload_files(self, presenter=None, presentation=None, combined=None,
                          is_inbox=False):
@@ -321,7 +309,7 @@ class UploadPage(BasePage):
                 self.single_file_inbox_radio.click()
             else:
                 self.single_file_local_radio.click()
-            self.set_upload_file(self.file_input_iframes[0], combined, is_inbox)
+            self.set_upload_file(0, combined, is_inbox)
         else:
             self.multi_file_radio.click()
             if is_inbox:
@@ -330,22 +318,26 @@ class UploadPage(BasePage):
             else:
                 self.multi_file_presentation_local_radio.click()
                 self.multi_file_presenter_local_radio.click()
-            self.set_upload_file(self.file_input_iframes[1], presentation, is_inbox)
-            self.set_upload_file(self.file_input_iframes[2], presenter, is_inbox)
+            self.set_upload_file(1, presentation, is_inbox)
+            self.set_upload_file(2, presenter, is_inbox)
 
-    def set_upload_file(self, iframe, file, is_inbox):
-        self.driver.switch_to.frame(iframe)
-        if is_inbox:
-            self.inbox_file_select.select_by_value(file)
-        else:
-            # NOTE: this will silently fail if it's not an absolute path to an existing file
-            self.local_file_selector.send_keys(abspath(file))
-        self.driver.switch_to.default_content()
+    def set_upload_file(self, iframe_idx, file, is_inbox):
+        iframe = self.file_input_iframes[iframe_idx]
+        with self.switch_frame(iframe):
+            if is_inbox:
+                self.inbox_file_select.select_by_value(file)
+            else:
+                # NOTE: this will silently fail if it's not an absolute path to an existing file
+                self.local_file_selector.send_keys(abspath(file))
 
     def wait_for_upload_finish(self):
-        WebDriverWait(self.driver, 1000000).until_not(visible(self.upload_progress_dialog))
+        WebDriverWait(self.browser.driver, 1000000).until_not(visible(self.upload_progress_dialog._element))
 
 class TrimPage(BasePage):
+
+    @property
+    def trim_iframe(self):
+        return self.get_element(RecordingsLocators.TRIM_IFRAME)
 
     @property
     def shortcut_table(self):
@@ -378,14 +370,15 @@ class TrimPage(BasePage):
     def trim(self):
         self.clear_button.click()
         sleep(1)
+
         # safe to assume media is > 10 seconds?
-        self.shortcut_table.send_keys("l" * 20)
+        self.shortcut_table.type("l" * 20)
         sleep(1)
-        self.shortcut_table.send_keys("v")
+        self.shortcut_table.type("v")
         sleep(1)
-        self.shortcut_table.send_keys(Keys.ARROW_UP)
+        self.shortcut_table.type(Keys.ARROW_UP)
         sleep(1)
-        self.shortcut_table.send_keys(Keys.DELETE)
+        self.shortcut_table.type(Keys.DELETE)
         sleep(1)
 
         # media_length = timeparse(self.trim_end_input.get_attribute('value'))

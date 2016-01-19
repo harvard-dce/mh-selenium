@@ -1,36 +1,43 @@
+
 import click
 from mh_cli import cli
+from time import sleep
 
 from selenium.common.exceptions import TimeoutException
-from common import pass_state, init_driver, selenium_options
+from common import pass_state, init_browser, selenium_options
 from mh_pages.pages import RecordingsPage, \
     AdminPage, \
     TrimPage, \
     UploadPage
 
-__all__ = ['upload', 'trim']
+@cli.group()
+def rec():
+    pass
 
-@cli.command()
+@rec.command()
 @click.option('--presenter', help="Presenter video")
 @click.option('--presentation', help="Presentation video")
 @click.option('--combined', help="Combined presenter/presentation video")
 @click.option('--series', help="Series title. Should match an existing series.")
 @click.option('--title', default='mh-ui-testing upload', help="Recording title")
+@click.option('--type', default='L01', help="Recording type")
 @click.option('-i', '--inbox', is_flag=True, help="Use a MH inbox media file")
-@click.option('--live_stream', is_flag=True)
+@click.option('--live_stream', is_flag=True, help="Flag to indicate a live stream recording")
 @selenium_options
 @pass_state
-@init_driver('/admin')
-def upload(state, presenter, presentation, combined, series, title, inbox, live_stream):
+@init_browser('/admin')
+def upload(state, presenter, presentation, combined, series, title, type, inbox, live_stream):
     """Upload a recording from a local path or the inbox"""
 
-    page = RecordingsPage(state.driver)
-    page.upload_recording_button.click()
+    page = RecordingsPage(state.browser)
+    sleep(2)
 
-    page = UploadPage(state.driver)
+    with page.wait_for_page_change():
+        page.upload_recording_button.click()
 
-    page.enter_text(page.title_input, title)
-    page.enter_text(page.type_input, "L01")
+    page = UploadPage(state.browser)
+    page.title_input.type(title)
+    page.type_input.type(type)
 
     if series is not None:
         page.set_series(series)
@@ -39,26 +46,32 @@ def upload(state, presenter, presentation, combined, series, title, inbox, live_
                           presentation=presentation,
                           combined=combined,
                           is_inbox=inbox)
-    page.workflow_select.select_by_value('DCE-production')
-    page.set_live_stream(live_stream)
-    page.set_multitrack(combined is not None)
+
+    if live_stream:
+        page.live_stream_checkbox.check()
+
+    if combined is not None:
+        page.multitrack_checkbox.check()
+    else:
+        page.multitrack_checkbox.uncheck()
+
     page.upload_button.click()
     page.wait_for_upload_finish()
 
-@cli.command()
+@rec.command()
 @click.option('-f', '--filter')
 @click.option('-c', '--count', type=int, default=None)
 @selenium_options
 @pass_state
-@init_driver('/admin')
+@init_browser('/admin')
 def trim(state, filter=None, count=None):
     """Execute trims on existing recording(s)"""
 
-    page = AdminPage(state.driver)
+    page = AdminPage(state.browser)
     page.recordings_tab.click()
-    page = RecordingsPage(state.driver)
+    page = RecordingsPage(state.browser)
     page.max_per_page()
-    page.switch_to_tab(page.on_hold_tab)
+    page.on_hold_tab.click()
 
     if filter is not None:
         field, value = filter.split(':', 1)
@@ -80,15 +93,17 @@ def trim(state, filter=None, count=None):
         except (TimeoutException,IndexError):
             break
 
-        href = link.get_attribute('href')
+        href = link['href']
         scheme, js = href.split(':', 1)
         page.js(js)
-        page.switch_frame(page.trim_iframe)
-        page = TrimPage(state.driver)
-        page.trim()
-        page.default_frame()
-        page.reload()
-        page = RecordingsPage(state.driver)
+        page = TrimPage(state.browser)
+        with page.switch_frame(page.trim_iframe):
+            page.trim()
+
+        with page.wait_for_page_change():
+            page.reload()
+
+        page = RecordingsPage(state.browser)
 
         if count is not None:
             count -= 1

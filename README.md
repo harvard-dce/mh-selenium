@@ -86,23 +86,31 @@ uploads for files > 1G.
       -H, --host TEXT        host/ip of remote admin node
       --help                 Show this message and exit.
 
-### series create
+### series commands
+
+#### series create
 
     Usage: mh series create [OPTIONS]
     
     Options:
+      -D, --driver TEXT    Selenium driver to use: firefox|chrome
       -H, --host TEXT      host/ip of remote admin node
       -u, --username TEXT  MH admin login username
       -p, --password TEXT  MH admin login password
       --title TEXT         Title of the series
+      --subject TEXT       Subject of the series. If not specified this will take
+                           the form 'TEST S-xxxxx', where 'xxxxx' is the last 5
+                           digits of the identifier.
       --id TEXT            Series identifier. If not specified this will be
                            generated for you in the format '203501xxxxx' where
                            'xxxxx' is a random number sequence
       --help               Show this message and exit.
 
-### upload
+### rec commands
 
-    Usage: mh upload [OPTIONS]
+#### rec upload
+
+    Usage: mh rec upload [OPTIONS]
     
       Upload a recording from a local path or the inbox
     
@@ -114,37 +122,45 @@ uploads for files > 1G.
       --title TEXT         Recording title
       -i, --inbox          Use a MH inbox media file
       --live_stream
+      -D, --driver TEXT    Selenium driver to use: firefox|chrome
       -H, --host TEXT      host/ip of remote admin node
       -u, --username TEXT  MH admin login username
       -p, --password TEXT  MH admin login password
       --help               Show this message and exit.
 
 
-### trim
+#### rec trim
 
-    Usage: mh trim [OPTIONS]
+    Usage: mh rec trim [OPTIONS]
     
       Execute trims on existing recording(s)
     
     Options:
       -f, --filter TEXT
       -c, --count INTEGER
+      -D, --driver TEXT    Selenium driver to use: firefox|chrome
       -H, --host TEXT      host/ip of remote admin node
       -u, --username TEXT  MH admin login username
       -p, --password TEXT  MH admin login password
       --help               Show this message and exit.
 
 
-## Ghost Inspector test commands
+### Ghost Inspector test commands
 
 Preliminary support for executing Ghost Inspector tests is provided via the 
 `mh gi` command group. Options for these commands are simply passed along to
 the `py.test` subprocess, so for now take a gander at the [pytest-ghostinspector](https://github.com/harvard-dce/pytest-ghostinspector)
 docs to see what those options should be.
 
-### gi list
+#### gi list
  
-### gi exec
+#### gi exec
+
+### Specifying an alternate driver: `-D, --driver` option
+
+The default browser driver, and the one used 98% during development of these tasks, is firefox. 
+Hopefully not necessary to change this, but if you find a task executing unreliably it might
+be worth trying, `--driver=chrome`. You'll need to have [chromedriver](https://sites.google.com/a/chromium.org/chromedriver/) installed.
 
 
 ## Example process

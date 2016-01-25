@@ -57,7 +57,7 @@ ACL_XML = '''
 
 @cli.group()
 def series():
-    pass
+    """Do stuff with Matterhorn series"""
 
 @series.command()
 @selenium_options

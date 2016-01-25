@@ -12,7 +12,7 @@ from mh_pages.pages import RecordingsPage, \
 
 @cli.group()
 def rec():
-    pass
+    """Do stuff with Matterhorn recordings"""
 
 @rec.command()
 @click.option('--presenter', help="Presenter video")

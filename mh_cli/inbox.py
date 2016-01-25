@@ -22,14 +22,15 @@ def inbox():
 def inbox_put(state, file):
     """Upload a recording file to the MH inbox"""
     if file.startswith('http'):
-        with cd(state.inbox):
+        with cd(state.inbox_path):
             sudo("curl -s -o %s %s" % (basename(file), file))
-        result = state.inbox + '/' + basename(file)
+        result = state.inbox_path + '/' + basename(file)
     elif exists(file):
         size_in_bytes = getsize(file)
         if size_in_bytes / (1024 * 1024) > 1024:
             raise UsageError("File > 1G. Upload to s3 and use the url instead.")
-        result = put(local_path=file, remote_path=state.inbox, use_sudo=True)
+        result = put(local_path=file,
+                     remote_path=state.inbox_path, use_sudo=True)
     else:
         raise UsageError("Local file %s not found" % file)
     print(cyan("Files created: {}".format(str(result))))
@@ -46,7 +47,7 @@ def inbox_symlink(state, file, count):
     if not remote_exists(remote_path, verbose=True):
         abort("remote file {} not found".format(remote_path))
 
-    with cd(state.inbox):
+    with cd(state.inbox_path):
         for i in range(count):
             link = remote_path.stem + '_' + str(i + 1) + remote_path.ext
             sudo("ln -sf {} {}".format(remote_path, link))

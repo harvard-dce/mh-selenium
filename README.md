@@ -42,7 +42,8 @@ These tasks make use of the python [fabric](http://fabfile.org) library to execu
 commands via ssh on the remote system. When running against an Opsworks cluster, it
 is expected that your local user corresponds to a remote user so that ssh key auth 
 can be utilized. In the case of the ansible-provisioned ec2 clusters you will need
-to include the option `--user=ansible` and provide the ansbile user password
+to include the option `--user=ansible` and provide the ansbile user password when 
+prompted.
     
 #### inbox list
 
@@ -51,8 +52,8 @@ to include the option `--user=ansible` and provide the ansbile user password
       List the current contents of the inbox
     
     Options:
-      -i, --inbox_path TEXT  alternate path to recording inbox
-      -u, --user TEXT        The user to execute remote tasks as
+      -I, --inbox_path TEXT  alternate path to recording inbox
+      --ssh_user TEXT        The user to execute remote tasks as
       -H, --host TEXT        host/ip of remote admin node
       --help                 Show this message and exit.
 
@@ -64,8 +65,8 @@ to include the option `--user=ansible` and provide the ansbile user password
     
     Options:
       -f, --file TEXT
-      -i, --inbox_path TEXT  alternate path to recording inbox
-      -u, --user TEXT        The user to execute remote tasks as
+      -I, --inbox_path TEXT  alternate path to recording inbox
+      --ssh_user TEXT        The user to execute remote tasks as
       -H, --host TEXT        host/ip of remote admin node
       --help                 Show this message and exit.
 
@@ -81,8 +82,8 @@ uploads for files > 1G.
     Options:
       -f, --file TEXT
       -c, --count INTEGER
-      -i, --inbox_path TEXT  alternate path to recording inbox
-      -u, --user TEXT        The user to execute remote tasks as
+      -I, --inbox_path TEXT  alternate path to recording inbox
+      --ssh_user TEXT        The user to execute remote tasks as
       -H, --host TEXT        host/ip of remote admin node
       --help                 Show this message and exit.
 
@@ -162,6 +163,31 @@ The default browser driver, and the one used 98% during development of these tas
 Hopefully not necessary to change this, but if you find a task executing unreliably it might
 be worth trying, `--driver=chrome`. You'll need to have [chromedriver](https://sites.google.com/a/chromium.org/chromedriver/) installed.
 
+
+## Config file for common options
+
+When run the `mh` command will look for a config file at `~/.mh-ui-testing`, and
+create it if it does not exist.
+
+Example:
+
+    [mh]
+    username = 
+    password = 
+    host = ec2-12-34-56-78.compute-1.amazonaws.com
+    driver = firefox
+    inbox_path = /var/matterhorn/inbox
+    
+    [pytest]
+    testpaths = gi_tests
+    addopts = 
+
+If you grow weary of typing all the `-u` and `-H` options for every command you can
+set the values in this file by editing manually or by running, e.g.:
+
+`mh config -H my.mh.hostname.com -u user -p mypass`
+
+which will update `~/.mh-ui-testing` for you.
 
 ## Example process
 

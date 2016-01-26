@@ -49,6 +49,8 @@ def upload(state, presenter, presentation, combined, series, title, type, inbox,
 
     if live_stream:
         page.live_stream_checkbox.check()
+    else:
+        page.live_stream_checkbox.uncheck()
 
     if combined is not None:
         page.multitrack_checkbox.check()

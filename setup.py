@@ -13,7 +13,7 @@ version_file = read('mh_cli/__init__.py')
 version = re.search(r"^__version__ = ['\"]([^'\"]*)['\"]", version_file, re.M).group(1)
 
 install_requires = [
-    "selenium>=2.47.1",
+    "selenium==2.48.0",
     "click==5.1",
     "fabric==1.10.2",
     "pytimeparse==1.1.5",

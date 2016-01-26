@@ -140,8 +140,8 @@ class RecordingsPage(AdminPage):
 
     def filter_recordings(self, field, value):
         self.search_select.select_by_value(field)
-        self.search_input.send_keys(value)
-        self.search_input.send_keys(Keys.RETURN)
+        self.search_input.type(value)
+        self.search_input.type(Keys.RETURN)
         found = self.get_element(RecordingsLocators.FILTER_FOUND_COUNT)
         return found
 
@@ -328,7 +328,7 @@ class UploadPage(BasePage):
                 self.inbox_file_select.select_by_value(file)
             else:
                 # NOTE: this will silently fail if it's not an absolute path to an existing file
-                self.local_file_selector.send_keys(abspath(file))
+                self.local_file_selector.fill(abspath(file))
 
     def wait_for_upload_finish(self):
         WebDriverWait(self.browser.driver, 1000000).until_not(visible(self.upload_progress_dialog._element))

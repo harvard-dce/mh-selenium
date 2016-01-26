@@ -1,4 +1,4 @@
-__version__ = '0.9.0'
+__version__ = '0.9.1'
 
 import click
 click.disable_unicode_literals_warning = True

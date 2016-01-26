@@ -1,4 +1,5 @@
-
+import ConfigParser
+import os
 import click
 import socket
 
@@ -11,44 +12,66 @@ from mh_pages.pages import LoginPage
 from click.exceptions import UsageError
 from fabric.contrib.files import exists as remote_exists
 
-OPSWORKS_INBOX_PATH = '/var/matterhorn/inbox'
-EC2_INBOX_PATH = '/home/data/opencast/inbox'
 
 class ClickState(object):
 
     def __init__(self):
         self.username = None
         self.password = None
-        self.driver = None
-        self.inbox_path = None
         self.host = None
-        self.user = None
+        self.ssh_user = None
+        self.driver = 'firefox'
+        self.inbox_path = '/var/matterhorn/inbox'
+        self.conf_file = os.path.join(os.path.expanduser('~'), '.mh-ui-testing')
+        self.load_config()
+
+    def load_config(self):
+        self.config = ConfigParser.ConfigParser()
+
+        if os.path.isfile(self.conf_file):
+            self.config.read(self.conf_file)
+            if self.config.has_section('mh'):
+                # load settings into envvars to be picked up by click options
+                for k, v in self.config.items('mh'):
+                    if v:
+                        os.environ['MHUIT_%s' % k.upper()] = v
+        else:
+            self.config.add_section('mh')
+            self.config.add_section('pytest')
+            self.config.set('pytest', 'testpaths', 'gi_tests')
+            self.config.set('pytest', 'addopts', '')
+            with open(self.conf_file, 'wb') as fh:
+                self.config.write(fh)
+
+    def save_config(self):
+        for opt in [
+            'username',
+            'password',
+            'host',
+            'driver',
+            'inbox_path',
+            'ssh_user'
+        ]:
+            if hasattr(self, opt) and getattr(self, opt) is not None:
+                self.config.set('mh', opt, getattr(self, opt))
+        with open(self.conf_file, 'wb') as fh:
+            self.config.write(fh)
 
     @property
     def base_url(self):
         return 'http://' + self.host + '/'
 
     @property
-    def inbox(self):
-        if self.inbox_path is not None:
-            return self.inbox_path
-        if remote_exists(OPSWORKS_INBOX_PATH):
-            return OPSWORKS_INBOX_PATH
-        elif remote_exists(EC2_INBOX_PATH):
-            return EC2_INBOX_PATH
-        else:
-            raise UsageError("Can't determine remote inbox path")
-
-    @property
     def inbox_dest(self):
-        return Path(self.inbox).parent.child('files','collection','inbox')
+        return Path(self.inbox_path).parent.child('files','collection','inbox')
 
 pass_state = click.make_pass_decorator(ClickState, ensure=True)
 
-def common_callback(ctx, option, value):
+def state_callback(ctx, option, value):
     state = ctx.ensure_object(ClickState)
-    setattr(state, option.name, value)
-    return value
+    if value is not None:
+        setattr(state, option.name, value)
+
 
 def host_callback(ctx, option, value):
     state = ctx.ensure_object(ClickState)
@@ -56,44 +79,50 @@ def host_callback(ctx, option, value):
         setattr(state, 'host', socket.gethostbyaddr(value)[0])
     return value
 
-def password_option(f):
+def password_option(f, required=True):
     return click.option('-p','--password',
                         expose_value=False,
-                        prompt=True,
+                        required=required,
                         help='MH admin login password',
-                        callback=common_callback)(f)
+                        envvar='MHUIT_PASSWORD',
+                        callback=state_callback)(f)
 
-def username_option(f):
+def username_option(f, required=True):
     return click.option('-u','--username',
                         expose_value=False,
-                        prompt=True,
+                        required=required,
                         help='MH admin login username',
-                        callback=common_callback)(f)
+                        envvar='MHUIT_USERNAME',
+                        callback=state_callback)(f)
 
 def user_option(f):
-    return click.option('-u','--user',
+    return click.option('--ssh_user',
                         expose_value=False,
                         help='The user to execute remote tasks as',
-                        callback=common_callback)(f)
+                        envvar='MHUIT_SSH_USER',
+                        callback=state_callback)(f)
 
-def host_option(f):
+def host_option(f, required=True):
     return click.option('-H','--host',
                         expose_value=False,
+                        required=required,
                         help='host/ip of remote admin node',
+                        envvar='MHUIT_HOST',
                         callback=host_callback)(f)
 
 def driver_option(f):
     return click.option('-D', '--driver',
                         expose_value=False,
                         help='Selenium driver to use: firefox|chrome',
-                        default='firefox',
-                        callback=common_callback)(f)
+                        envvar='MHUIT_DRIVER',
+                        callback=state_callback)(f)
 
 def inbox_path_option(f):
-    return click.option('-i', '--inbox_path',
+    return click.option('-I', '--inbox_path',
                         expose_value=False,
                         help='alternate path to recording inbox',
-                        callback=common_callback)(f)
+                        envvar='MHUIT_INBOX_PATH',
+                        callback=state_callback)(f)
 
 def selenium_options(f):
     f = password_option(f)
@@ -108,14 +137,26 @@ def inbox_options(f):
     f = inbox_path_option(f)
     return f
 
+def config_options(f):
+    f = password_option(f, required=False)
+    f = username_option(f, required=False)
+    f = host_option(f, required=False)
+    f = driver_option(f)
+    f = user_option(f)
+    f = inbox_path_option(f)
+    return f
+
 def init_fabric(click_cmd):
     @wraps(click_cmd)
     def wrapped(state, *args, **kwargs):
 
         # set up the fabric env
         env.host_string = state.host
-        if state.user is not None:
-            env.user = state.user
+        if state.ssh_user:
+            env.user = state.ssh_user
+
+        if not remote_exists(state.inbox_path):
+            raise UsageError("Invalid remote inbox path: %s" % state.inbox_path)
 
         return click_cmd(state, *args, **kwargs)
     return wrapped
@@ -141,3 +182,4 @@ def init_browser(init_path=''):
 
         return _wrapped_cmd
     return decorator
+

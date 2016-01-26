@@ -1,7 +1,0 @@
-[pytest]
-testpaths = gi_tests
-
-# uncomment and insert values for convenience
-#addopts =
-#    --gi_key=
-#    --gi_start_url=

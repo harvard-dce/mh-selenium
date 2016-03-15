@@ -166,19 +166,22 @@ def init_browser(init_path=''):
         @wraps(click_cmd)
         def _wrapped_cmd(state, *args, **kwargs):
 
-            state.browser = Browser(state.driver)
-            state.browser.visit(urljoin(state.base_url, init_path))
+            try:
+                state.browser = Browser(state.driver)
+                state.browser.visit(urljoin(state.base_url, init_path))
 
-            if 'Login' in state.browser.title:
-                page = LoginPage(state.browser)
-                with page.wait_for_page_change():
-                    page.login(state.username, state.password)
+                if 'Login' in state.browser.title:
+                    page = LoginPage(state.browser)
+                    with page.wait_for_page_change():
+                        page.login(state.username, state.password)
+                        if 'Login' in state.browser.title:
+                            raise RuntimeError("Login failed. Check your user/pass.")
+                    state.browser.visit(urljoin(state.base_url, init_path))
 
-            result = click_cmd(state, *args, **kwargs)
-
-            state.browser.quit()
-
-            return result
+                result = click_cmd(state, *args, **kwargs)
+                return result
+            finally:
+                state.browser.quit()
 
         return _wrapped_cmd
     return decorator

@@ -84,6 +84,7 @@ def trim(state, filter=None, count=None):
 
         # kinda annoying that we have to do this each time
         page.refresh_off()
+        sleep(1)
 
         try:
             # re-resolve the trim link elements each time because the refs go

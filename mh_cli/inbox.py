@@ -63,6 +63,7 @@ def inbox_list(state, match):
     if not remote_exists(state.inbox_dest):
         return
     with cd(state.inbox_dest), hide('running', 'stdout', 'stderr'):
-        output = run('ls {} | grep -v "\.md5"'.format(match))
+        output = run('ls {} | grep -v "\.md5"'.format(match),
+                     warn_only=True, quiet=True)
         for f in output.split():
             print(cyan(f))

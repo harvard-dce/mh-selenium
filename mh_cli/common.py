@@ -33,8 +33,10 @@ class ClickState(object):
             if self.config.has_section('mh'):
                 # load settings into envvars to be picked up by click options
                 for k, v in self.config.items('mh'):
-                    if v:
-                        os.environ['MHUIT_%s' % k.upper()] = v
+                    varname = 'MHUIT_%s' % k.upper()
+                    # not if empty or already set
+                    if v and varname not in os.environ:
+                        os.environ[varname] = v
         else:
             self.config.add_section('mh')
             self.config.add_section('pytest')

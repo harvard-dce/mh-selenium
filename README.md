@@ -31,8 +31,8 @@ Current command tree:
     * `mh inbox put`
     * `mh inbox symlink`
     * `mh series create`
-    * `mh upload`
-    * `mh trim`
+    * `mh rec upload`
+    * `mh rec trim`
     * `mh gi list`
     * `mh gi exec`
     
@@ -148,14 +148,43 @@ uploads for files > 1G.
 
 ### Ghost Inspector test commands
 
-Preliminary support for executing Ghost Inspector tests is provided via the 
-`mh gi` command group. Options for these commands are simply passed along to
-the `py.test` subprocess, so for now take a gander at the [pytest-ghostinspector](https://github.com/harvard-dce/pytest-ghostinspector)
-docs to see what those options should be.
+Support for executing Ghost Inspector tests is provided via the 
+`mh gi` command group. Options for these commands are translated and passed
+along to `py.test` which uses the `pytest-ghostinspector` plugin to execute
+or list the available tests.
 
 #### gi list
+
+    Usage: mh gi list [OPTIONS]
+    
+      Collect and list available tests
+    
+    Options:
+      --key TEXT    ghost inspector API key
+      --suite TEXT  ID of a ghost inspector suite
+      --test TEXT   ID of a ghost inspector test
+      --help        Show this message and exit.
+
  
 #### gi exec
+
+    Usage: mh gi exec [OPTIONS]
+    
+      Execute tests
+    
+    Options:
+      --runners INTEGER  num tests to run concurrently [default: 4]
+      --var TEXT         extra test variable(s); repeatable
+      --key TEXT         ghost inspector API key
+      --suite TEXT       ID of a ghost inspector suite
+      --test TEXT        ID of a ghost inspector test
+      --help             Show this message and exit.
+
+
+#### Integration with mh-opsworks
+
+Ghost Inspector tests can be executed in the context of your [`mh-opsworks`](http://github.com/harvard-dce/mh-opsworks).
+See the `README.ui-testing.md` doc in that repo for details.
 
 ### Specifying an alternate driver: `-D, --driver` option
 
@@ -163,33 +192,7 @@ The default browser driver, and the one used 98% during development of these tas
 Hopefully not necessary to change this, but if you find a task executing unreliably it might
 be worth trying, `--driver=chrome`. You'll need to have [chromedriver](https://sites.google.com/a/chromium.org/chromedriver/) installed.
 
-
-## Config file for common options
-
-When run the `mh` command will look for a config file at `~/.mh-ui-testing`, and
-create it if it does not exist.
-
-Example:
-
-    [mh]
-    username = 
-    password = 
-    host = ec2-12-34-56-78.compute-1.amazonaws.com
-    driver = firefox
-    inbox_path = /var/matterhorn/inbox
-    
-    [pytest]
-    testpaths = gi_tests
-    addopts = 
-
-If you grow weary of typing all the `-u` and `-H` options for every command you can
-set the values in this file by editing manually or by running, e.g.:
-
-`mh config -H my.mh.hostname.com -u user -p mypass`
-
-which will update `~/.mh-ui-testing` for you.
-
-## Example process
+## Examples
 
 The following sequence of commands provides an example of how to upload a set of video files
 to the Matterhorn inbox, create symlinks to populate the inbox selection menu

@@ -22,42 +22,7 @@ class ClickState(object):
         self.ssh_user = None
         self.driver = 'firefox'
         self.inbox_path = '/var/matterhorn/inbox'
-        self.conf_file = os.path.join(os.path.expanduser('~'), '.mh-ui-testing')
-        self.load_config()
-
-    def load_config(self):
-        self.config = ConfigParser.ConfigParser()
-
-        if os.path.isfile(self.conf_file):
-            self.config.read(self.conf_file)
-            if self.config.has_section('mh'):
-                # load settings into envvars to be picked up by click options
-                for k, v in self.config.items('mh'):
-                    varname = 'MHUIT_%s' % k.upper()
-                    # not if empty or already set
-                    if v and varname not in os.environ:
-                        os.environ[varname] = v
-        else:
-            self.config.add_section('mh')
-            self.config.add_section('pytest')
-            self.config.set('pytest', 'testpaths', 'gi_tests')
-            self.config.set('pytest', 'addopts', '')
-            with open(self.conf_file, 'wb') as fh:
-                self.config.write(fh)
-
-    def save_config(self):
-        for opt in [
-            'username',
-            'password',
-            'host',
-            'driver',
-            'inbox_path',
-            'ssh_user'
-        ]:
-            if hasattr(self, opt) and getattr(self, opt) is not None:
-                self.config.set('mh', opt, getattr(self, opt))
-        with open(self.conf_file, 'wb') as fh:
-            self.config.write(fh)
+        self.working_dir = None
 
     @property
     def base_url(self):
@@ -135,15 +100,6 @@ def selenium_options(f):
 
 def inbox_options(f):
     f = host_option(f)
-    f = user_option(f)
-    f = inbox_path_option(f)
-    return f
-
-def config_options(f):
-    f = password_option(f, required=False)
-    f = username_option(f, required=False)
-    f = host_option(f, required=False)
-    f = driver_option(f)
     f = user_option(f)
     f = inbox_path_option(f)
     return f

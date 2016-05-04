@@ -15,11 +15,11 @@ version = re.search(r"^__version__ = ['\"]([^'\"]*)['\"]", version_file, re.M).g
 install_requires = [
     "selenium==2.48.0",
     "click==5.1",
-    "fabric==1.10.2",
+    "Fabric==1.11.1",
     "pytimeparse==1.1.5",
     "unipath==1.1",
     "pytest>=2.8.1",
-    "pytest-ghostinspector>=0.1.2",
+    "pytest-ghostinspector>=0.3.0",
     "splinter==0.7.3"
 ]
 

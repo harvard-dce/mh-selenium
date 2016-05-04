@@ -1,21 +1,18 @@
-__version__ = '0.9.4'
+__version__ = '0.10.0'
 
+import os
 import click
 click.disable_unicode_literals_warning = True
 
-from mh_cli.common import ClickState, config_options, pass_state
+from mh_cli.common import ClickState, pass_state
 
 @click.group()
+@click.option('--working-dir', help='change to this dir before executing cmds')
 @click.pass_context
-def cli(ctx):
+def cli(ctx, working_dir):
     ctx.ensure_object(ClickState)
-
-@cli.command()
-@config_options
-@pass_state
-def config(state):
-    """Save typing by setting common options in a config file"""
-    state.save_config()
+    if working_dir is not None:
+        os.chdir(working_dir)
 
 from gi import gi
 from inbox import inbox

@@ -10,23 +10,34 @@ from mh_pages.pages import RecordingsPage, \
     TrimPage, \
     UploadPage
 
+
 @cli.group()
 def rec():
     """Do stuff with Matterhorn recordings"""
 
+
 @rec.command()
-@click.option('--presenter', help="Presenter video")
-@click.option('--presentation', help="Presentation video")
-@click.option('--combined', help="Combined presenter/presentation video")
-@click.option('--series', help="Series title. Should match an existing series.")
-@click.option('--title', default='mh-ui-testing upload', help="Recording title")
-@click.option('--type', default='L01', help="Recording type")
-@click.option('-i', '--inbox', is_flag=True, help="Use a MH inbox media file")
-@click.option('--live_stream', is_flag=True, help="Flag to indicate a live stream recording")
+@click.option('--presenter',
+              help="Presenter video")
+@click.option('--presentation',
+              help="Presentation video")
+@click.option('--combined',
+              help="Combined presenter/presentation video")
+@click.option('--series',
+              help="Series title. Should match an existing series.")
+@click.option('--title', default='mh-ui-testing upload',
+              help="Recording title")
+@click.option('--type', default='L01',
+              help="Recording type")
+@click.option('-i', '--inbox', is_flag=True,
+              help="Use a MH inbox media file")
+@click.option('--live_stream', is_flag=True,
+              help="Flag to indicate a live stream recording")
 @selenium_options
 @pass_state
 @init_browser('/admin')
-def upload(state, presenter, presentation, combined, series, title, type, inbox, live_stream):
+def upload(state, presenter, presentation, combined,
+           series, title, type, inbox, live_stream):
     """Upload a recording from a local path or the inbox"""
 
     page = RecordingsPage(state.browser)
@@ -59,6 +70,7 @@ def upload(state, presenter, presentation, combined, series, title, type, inbox,
 
     page.upload_button.click()
     page.wait_for_upload_finish()
+
 
 @rec.command()
 @click.option('-f', '--filter')
@@ -93,7 +105,7 @@ def trim(state, filter=None, count=None):
             # the same thing > once (e.g. the entry doesn't get removed from
             # the table because the workflow hasn't actually resumed)
             link = page.trim_links[link_idx]
-        except (TimeoutException,IndexError):
+        except (TimeoutException, IndexError):
             break
 
         href = link['href']
@@ -112,4 +124,3 @@ def trim(state, filter=None, count=None):
             count -= 1
             if count == 0:
                 break
-

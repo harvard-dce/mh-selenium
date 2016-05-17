@@ -1,13 +1,15 @@
-
 from selenium.webdriver.common.by import By
+
 
 class LoginLocators(object):
     USERNAME_INPUT = (By.NAME, 'j_username')
     PASSWORD_INPUT = (By.NAME, 'j_password')
     SUBMIT_BUTTON = (By.NAME, 'submit')
 
+
 class AdminLocators(object):
     RECORDINGS_TAB = (By.CSS_SELECTOR, 'a#i18n_tab_recording')
+
 
 class RecordingsLocators(object):
     UPLOAD_RECORDING_BUTTON = (By.CSS_SELECTOR, 'button#uploadButton')
@@ -19,6 +21,7 @@ class RecordingsLocators(object):
     ON_HOLD_TAB = (By.CSS_SELECTOR, 'label[for=state-hold]')
     TRIM_LINK = (By.CSS_SELECTOR, 'a[title="Review / VideoEdit"]')
     TRIM_IFRAME = (By.CSS_SELECTOR, 'iframe#holdActionUI')
+
 
 class UploadLocators(object):
     TITLE_INPUT = (By.CSS_SELECTOR, 'input#title')
@@ -43,13 +46,17 @@ class UploadLocators(object):
 
     FILE_INPUT_IFRAME = (By.CSS_SELECTOR, 'iframe.uploadForm-container')
 
-    SINGLE_FILE_LOCAL_RADIO = (By.CSS_SELECTOR,'input#fileSourceSingleA')
+    SINGLE_FILE_LOCAL_RADIO = (By.CSS_SELECTOR, 'input#fileSourceSingleA')
     SINGLE_FILE_INBOX_RADIO = (By.CSS_SELECTOR, 'input#fileSourceSingleB')
 
-    MULTI_FILE_PRESENTATION_LOCAL_RADIO = (By.CSS_SELECTOR, 'input#fileSourcePresentationA')
-    MULTI_FILE_PRESENTATION_INBOX_RADIO = (By.CSS_SELECTOR, 'input#fileSourcePresentationB')
-    MULTI_FILE_PRESENTER_LOCAL_RADIO = (By.CSS_SELECTOR, 'input#fileSourcePresenterA')
-    MULTI_FILE_PRESENTER_INBOX_RADIO = (By.CSS_SELECTOR, 'input#fileSourcePresenterB')
+    MULTI_FILE_PRESENTATION_LOCAL_RADIO = (By.CSS_SELECTOR,
+                                           'input#fileSourcePresentationA')
+    MULTI_FILE_PRESENTATION_INBOX_RADIO = (By.CSS_SELECTOR,
+                                           'input#fileSourcePresentationB')
+    MULTI_FILE_PRESENTER_LOCAL_RADIO = (By.CSS_SELECTOR,
+                                        'input#fileSourcePresenterA')
+    MULTI_FILE_PRESENTER_INBOX_RADIO = (By.CSS_SELECTOR,
+                                        'input#fileSourcePresenterB')
 
     LOCAL_FILE_SELECTOR = (By.CSS_SELECTOR, 'input#file')
     INBOX_FILE_SELECT = (By.CSS_SELECTOR, 'select#file')
@@ -61,6 +68,7 @@ class UploadLocators(object):
     UPLOAD_BUTTON = (By.CSS_SELECTOR, 'button#submitButton')
     UPLOAD_PROGRESS_DIALOG = (By.CSS_SELECTOR, 'div#progressStage')
 
+
 class TrimLocators(object):
     SHORTCUT_TABLE = (By.CSS_SELECTOR, 'div#rightBox')
     CLIP_BEGIN_INPUT = (By.CSS_SELECTOR, 'span#clipBegin > input')
@@ -69,4 +77,3 @@ class TrimLocators(object):
     CLIP_REMOVE_BUTTON = (By.CSS_SELECTOR, 'a#splitRemover-0')
     CONTINUE_BUTTON = (By.CSS_SELECTOR, 'input#continueButton')
     CLEAR_BUTTON = (By.CSS_SELECTOR, 'input#clearList')
-

@@ -10,9 +10,11 @@ from fabric.operations import put
 from fabric.colors import cyan
 from fabric.contrib.files import exists as remote_exists
 
+
 @cli.group()
 def inbox():
     """Manipulate the MH recording file inbox"""
+
 
 @inbox.command(name='put')
 @click.option('-f', '--file')
@@ -28,12 +30,14 @@ def inbox_put(state, file):
     elif exists(file):
         size_in_bytes = getsize(file)
         if size_in_bytes / (1024 * 1024) > 1024:
-            raise UsageError("File > 1G. Upload to s3 and use the url instead.")
+            raise UsageError(
+                "File > 1G. Upload to s3 and use the url instead.")
         result = put(local_path=file,
                      remote_path=state.inbox_path, use_sudo=True)
     else:
         raise UsageError("Local file %s not found" % file)
     print(cyan("Files created: {}".format(str(result))))
+
 
 @inbox.command(name='symlink')
 @click.option('-f', '--file')
@@ -52,6 +56,7 @@ def inbox_symlink(state, file, count):
             link = remote_path.stem + '_' + str(i + 1) + remote_path.ext
             sudo("ln -sf {} {}".format(remote_path, link))
         return
+
 
 @inbox.command(name='list')
 @click.argument('match', default='')

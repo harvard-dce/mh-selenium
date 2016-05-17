@@ -11,7 +11,8 @@ from mh_pages.pages import ApiDocPage
 CATALOG_XML = '''
 <?xml version="1.0" encoding="UTF-8"?>
 <dublincore xmlns="http://www.opencastproject.org/xsd/1.0/dublincore/"
-    xmlns:dcterms="http://purl.org/dc/terms/" xmlns:oc="http://www.opencastproject.org/matterhorn/">
+        xmlns:dcterms="http://purl.org/dc/terms/"
+        xmlns:oc="http://www.opencastproject.org/matterhorn/">
     <dcterms:creator>Harvard Extension School</dcterms:creator>
     <dcterms:contributor>Henry H. Leitner</dcterms:contributor>
     <dcterms:description>http://extension.harvard.edu</dcterms:description>
@@ -55,22 +56,24 @@ ACL_XML = '''
 </acl>
 '''
 
+
 @cli.group()
 def series():
     """Do stuff with Matterhorn series"""
 
+
 @series.command()
 @selenium_options
-@click.option('--title', default='Test Offering', help="Title of the series")
+@click.option('--title', default='Test Offering',
+              help="Title of the series")
 @click.option('--subject', default=None,
-              help="Subject of the series. " \
-                + "If not specified this will take the form 'TEST S-xxxxx', " \
-                + "where 'xxxxx' is the last 5 digits of the identifier."
-              )
+              help=("Subject of the series. If not specified this "
+                    "will take the form 'TEST S-xxxxx', "
+                    "where 'xxxxx' is the last 5 digits of the identifier."))
 @click.option('--id', default=None,
-              help="Series identifier. If not specified " \
-                 + "this will be generated for you in the format '203501xxxxx' " \
-                 + "where 'xxxxx' is a random number sequence")
+              help=("Series identifier. If not specified this will be "
+                    "generated for you in the format '203501xxxxx' "
+                    "where 'xxxxx' is a random number sequence"))
 @pass_state
 @init_browser('/admin')
 def create(state, title, subject, id):

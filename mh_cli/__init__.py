@@ -1,10 +1,11 @@
-__version__ = '1.0.0'
-
 import os
 import click
+from mh_cli.common import ClickState, pass_state
+
 click.disable_unicode_literals_warning = True
 
-from mh_cli.common import ClickState, pass_state
+__version__ = '1.0.0'
+
 
 @click.group()
 @click.option('--working-dir', help='change to this dir before executing cmds')

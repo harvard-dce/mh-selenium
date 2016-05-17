@@ -15,6 +15,7 @@ from locators import RecordingsLocators, \
                      LoginLocators, \
                      AdminLocators
 
+
 class BasePage(object):
 
     def __init__(self, browser):
@@ -57,8 +58,8 @@ class BasePage(object):
     def wait_for_page_change(self, tag='html', timeout=10):
         old_ref = self.browser.find_by_tag(tag)._element
         yield
-        WebDriverWait(self.browser.driver, timeout).until(staleness_of(old_ref))
-
+        WebDriverWait(self.browser.driver, timeout) \
+            .until(staleness_of(old_ref))
 
 
 class ApiDocPage(BasePage):
@@ -98,11 +99,13 @@ class LoginPage(BasePage):
         self.password_input.type(password)
         self.submit.click()
 
+
 class AdminPage(BasePage):
 
     @property
     def recordings_tab(self):
         return self.get_element(AdminLocators.RECORDINGS_TAB)
+
 
 class RecordingsPage(AdminPage):
 
@@ -154,6 +157,7 @@ class RecordingsPage(AdminPage):
         throw exceptions about not being clickable at point blah, blah
         """
         self.browser.driver.execute_script("arguments[0].click();", tab_elem)
+
 
 class UploadPage(BasePage):
 
@@ -294,8 +298,8 @@ class UploadPage(BasePage):
         self.series_input.type(series)
         self.series_autocomplete_items[0].click()
 
-    def set_upload_files(self, presenter=None, presentation=None, combined=None,
-                         is_inbox=False):
+    def set_upload_files(self, presenter=None, presentation=None,
+                         combined=None, is_inbox=False):
         """
         The MH upload UI does some crazy stuff with iframes.
         None of the iframe elements have unique ids, so this
@@ -327,11 +331,14 @@ class UploadPage(BasePage):
             if is_inbox:
                 self.inbox_file_select.select_by_value(file)
             else:
-                # NOTE: this will silently fail if it's not an absolute path to an existing file
+                # NOTE: this will silently fail if it's not
+                # an absolute path to an existing file
                 self.local_file_selector.fill(abspath(file))
 
     def wait_for_upload_finish(self):
-        WebDriverWait(self.browser.driver, 1000000).until_not(visible(self.upload_progress_dialog._element))
+        WebDriverWait(self.browser.driver, 1000000) \
+            .until_not(visible(self.upload_progress_dialog._element))
+
 
 class TrimPage(BasePage):
 

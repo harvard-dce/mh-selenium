@@ -6,11 +6,15 @@ from setuptools import setup, find_packages
 
 here = os.path.abspath(os.path.dirname(__file__))
 
+
 def read(path):
     return codecs.open(os.path.join(here, path), 'r', 'utf-8').read()
 
 version_file = read('mh_cli/__init__.py')
-version = re.search(r"^__version__ = ['\"]([^'\"]*)['\"]", version_file, re.M).group(1)
+version = re.search(
+    r"^__version__ = ['\"]([^'\"]*)['\"]",
+    version_file,
+    re.M).group(1)
 
 install_requires = [
     "selenium==2.48.0",

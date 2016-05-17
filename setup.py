@@ -23,7 +23,7 @@ install_requires = [
     "pytimeparse==1.1.5",
     "unipath==1.1",
     "pytest>=2.8.1",
-    "pytest-ghostinspector>=0.3.0",
+    "pytest-ghostinspector==0.4.0",
     "pytest-xdist==1.14",
     "splinter==0.7.3"
 ]

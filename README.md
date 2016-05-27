@@ -19,9 +19,9 @@ Automated admin tasks and tests for DCE Matterhorn.
     
 ## Commands
 
-The `mh` interface provides a few top-level commands as well as several more organized
-into groups of sub-commands. For instance, `mh upload` is a top-level command, but
-commands related to manipulating the MH recording inbox are grouped into an `inbox`
+The `mh` interface is organized
+into groups of sub-commands. For instance, the `mh rec` group contains `upload` and `trim`.
+Commands related to manipulating the MH recording inbox are grouped into an `inbox`
 group, for example, `mh inbox list` and `mh inbox put`. Each command accepts one or
 more options and arguments. `mh [cmd] --help` to display usage info.
 
@@ -236,7 +236,7 @@ The `uname` and `passwd` values here correspond to the Matterhorn admin interfac
 login.
 
 ```
-    for i in `seq 1 10`; do mh upload -u [uname] -p [passwd] --inbox --presenter presenter_${i}.mp4 --presentation presentation_${i}.mp4 [admin base_url] ; done
+    for i in `seq 1 10`; do mh rec upload -u [uname] -p [passwd] --inbox --presenter presenter_${i}.mp4 --presentation presentation_${i}.mp4 [admin base_url] ; done
 ```
 
 This *should* result in 10 processing workflows. The flakiness of Selenium + MH 
@@ -249,7 +249,7 @@ respective copies of the uploaded media and then pause/hold at the `editor`
 operation waiting for a human to intervene. We don't need stinking humans; we 
 have Selenium!
 
-`mh trim -u [uname] -p [passwd] [admin base_url]`
+`mh rec trim -u [uname] -p [passwd] [admin base_url]`
 
 
 ## Troubleshooting

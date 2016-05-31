@@ -152,7 +152,8 @@ def init_browser(init_path=''):
                 result = click_cmd(state, *args, **kwargs)
                 return result
             finally:
-                state.browser.quit()
+                if hasattr(state, 'browser'):
+                    state.browser.quit()
 
         return _wrapped_cmd
     return decorator

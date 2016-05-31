@@ -73,8 +73,13 @@ def upload(state, presenter, presentation, combined,
 
 
 @rec.command()
-@click.option('-f', '--filter')
-@click.option('-c', '--count', type=int, default=None)
+@click.option('-f', '--filter',
+              help="filter the recording list using the search box; format is field:text, where "
+                   "field is one of 'q' (any field), 'title', 'creator', 'seriesTitle', 'contributor', "
+                   "'subject', 'language', 'license'")
+@click.option('-c', '--count', type=int, default=None,
+              help='find and execute up to this many trims; by default this command will execute all '
+                   'that it finds')
 @selenium_options
 @pass_state
 @init_browser('/admin')
@@ -113,6 +118,7 @@ def trim(state, filter=None, count=None):
         page.js(js)
         page = TrimPage(state.browser)
         with page.switch_frame(page.trim_iframe):
+            sleep(1)
             page.trim()
 
         with page.wait_for_page_change():

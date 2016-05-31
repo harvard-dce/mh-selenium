@@ -17,7 +17,7 @@ version = re.search(
     re.M).group(1)
 
 install_requires = [
-    "selenium==2.48.0",
+    "selenium==2.53.2",
     "click==5.1",
     "Fabric==1.11.1",
     "pytimeparse==1.1.5",

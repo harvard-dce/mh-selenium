@@ -17,15 +17,16 @@ def inbox():
 
 
 @inbox.command(name='put')
-@click.option('-f', '--file')
+@click.option('-f', '--file',
+              help="path to a local file or a s3:// uri for files > 1g")
 @inbox_options
 @pass_state
 @init_fabric
 def inbox_put(state, file):
     """Upload a recording file to the MH inbox"""
-    if file.startswith('http'):
+    if file.startswith('s3'):
         with cd(state.inbox_path):
-            sudo("curl -s -o %s %s" % (basename(file), file))
+            sudo("aws s3 cp %s ." % file)
         result = state.inbox_path + '/' + basename(file)
     elif exists(file):
         size_in_bytes = getsize(file)

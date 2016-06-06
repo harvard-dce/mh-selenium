@@ -70,8 +70,9 @@ prompted.
       -H, --host TEXT        host/ip of remote admin node
       --help                 Show this message and exit.
 
-**Note** that `-f/--file` allows the use of a url (eg, s3) and disallows local
-uploads for files > 1G.
+**Note** that `-f/--file` allows the use of a s3:// uri and disallows local
+uploads for files > 1G. This is because the upload process must create a temp
+file in the user's space-limited home dir prior to copying to the inbox.
 
 #### inbox symlink
 

@@ -311,6 +311,7 @@ class UploadPage(BasePage):
             self.single_file_radio.click()
             if is_inbox:
                 self.single_file_inbox_radio.click()
+                sleep(3) # give file options time to load
             else:
                 self.single_file_local_radio.click()
             self.set_upload_file(0, combined, is_inbox)

@@ -110,6 +110,7 @@ def trim(state, filter=None, count=None):
             # the same thing > once (e.g. the entry doesn't get removed from
             # the table because the workflow hasn't actually resumed)
             link = page.trim_links[link_idx]
+            link_idx += 1
         except (TimeoutException, IndexError):
             break
 

@@ -77,3 +77,6 @@ class TrimLocators(object):
     CLIP_REMOVE_BUTTON = (By.CSS_SELECTOR, 'a#splitRemover-0')
     CONTINUE_BUTTON = (By.CSS_SELECTOR, 'input#continueButton')
     CLEAR_BUTTON = (By.CSS_SELECTOR, 'input#clearList')
+    SEEK_BUTTON = (By.CSS_SELECTOR, '.ui-icon-seek-next')
+    SCISSORS_BUTTON = (By.CSS_SELECTOR, '.ui-icon-scissors')
+    TRASH_BUTTON = (By.CSS_SELECTOR, '.ui-icon-trash')

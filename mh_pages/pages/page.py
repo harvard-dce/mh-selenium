@@ -138,8 +138,8 @@ class RecordingsPage(AdminPage):
         return self.get_elements(RecordingsLocators.TRIM_LINK)
 
     def refresh_off(self):
-        self.refresh_checkbox.uncheck()
-        self.js('window.clearInterval(ocRecordings.refreshInterval);')
+        self.js('ocRecordings.disableRefresh();')
+        self.js('ocStatistics.disableRefresh();')
 
     def filter_recordings(self, field, value):
         self.search_select.select_by_value(field)
@@ -375,27 +375,27 @@ class TrimPage(BasePage):
     def clear_button(self):
         return self.get_element(TrimLocators.CLEAR_BUTTON)
 
+    @property
+    def seek_button(self):
+        return self.get_element(TrimLocators.SEEK_BUTTON)
+
+    @property
+    def scissors_button(self):
+        return self.get_element(TrimLocators.SCISSORS_BUTTON)
+
+    @property
+    def first_segment_trash_button(self):
+        return self.get_elements(TrimLocators.TRASH_BUTTON)[0]
+
     def trim(self):
         self.clear_button.click()
         sleep(1)
 
-        # safe to assume media is > 10 seconds?
-        self.shortcut_table.type("l" * 20)
+        self.seek_button.click()
         sleep(1)
-        self.shortcut_table.type("v")
+        self.scissors_button.click()
         sleep(1)
-        self.shortcut_table.type(Keys.ARROW_UP)
+        self.first_segment_trash_button.click()
         sleep(1)
-        self.shortcut_table.type(Keys.DELETE)
-        sleep(1)
-
-        # media_length = timeparse(self.trim_end_input.get_attribute('value'))
-        # trim_length = media_length / 10
-        # self.trim_begin_input.clear()
-        # self.trim_begin_input.send_keys(str(datetime.timedelta(seconds=trim_length)))
-        # self.trim_ok_button.click()
-        # sleep(2)
-        # self.split_remover.click()
-
         self.continue_button.click()
         sleep(2)

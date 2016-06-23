@@ -118,6 +118,7 @@ def trim(state, filter=None, count=None):
         scheme, js = href.split(':', 1)
         page.js(js)
         page = TrimPage(state.browser)
+        sleep(3)
         with page.switch_frame(page.trim_iframe):
             sleep(1)
             page.trim()

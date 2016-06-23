@@ -387,6 +387,10 @@ class TrimPage(BasePage):
     def first_segment_trash_button(self):
         return self.get_elements(TrimLocators.TRASH_BUTTON)[0]
 
+    @property
+    def trim_submit_dialog(self):
+        return self.get_element(TrimLocators.TRIM_SUBMIT_DIALOG)
+
     def trim(self):
         self.clear_button.click()
         sleep(1)
@@ -398,4 +402,10 @@ class TrimPage(BasePage):
         self.first_segment_trash_button.click()
         sleep(1)
         self.continue_button.click()
-        sleep(2)
+#        sleep(1)
+#        self.wait_for_trim_submit()
+
+    def wait_for_trim_submit(self):
+        WebDriverWait(self.browser.driver, 1000000) \
+            .until_not(visible(self.trim_submit_dialog._element))
+

@@ -7,7 +7,8 @@ from contextlib import contextmanager
 
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support.expected_conditions import \
-    visibility_of as visible, staleness_of
+    visibility_of as visible, \
+    staleness_of
 
 from locators import RecordingsLocators, \
                      UploadLocators, \
@@ -387,6 +388,10 @@ class TrimPage(BasePage):
     def first_segment_trash_button(self):
         return self.get_elements(TrimLocators.TRASH_BUTTON)[0]
 
+    @property
+    def trim_submit_dialog(self):
+        return self.get_element(TrimLocators.TRIM_SUBMIT_DIALOG)
+
     def trim(self):
         self.clear_button.click()
         sleep(1)
@@ -398,4 +403,13 @@ class TrimPage(BasePage):
         self.first_segment_trash_button.click()
         sleep(1)
         self.continue_button.click()
-        sleep(2)
+        sleep(1)
+        try:
+            self.wait_for_trim_submit()
+        except:
+            pass
+
+    def wait_for_trim_submit(self):
+        WebDriverWait(self.browser.driver, 1000000) \
+            .until_not(visible(self.trim_submit_dialog._element))
+

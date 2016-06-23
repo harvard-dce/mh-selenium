@@ -80,3 +80,4 @@ class TrimLocators(object):
     SEEK_BUTTON = (By.CSS_SELECTOR, '.ui-icon-seek-next')
     SCISSORS_BUTTON = (By.CSS_SELECTOR, '.ui-icon-scissors')
     TRASH_BUTTON = (By.CSS_SELECTOR, '.ui-icon-trash')
+    TRIM_SUBMIT_DIALOG = (By.CSS_SELECTOR, '.ui-dialog')

@@ -279,10 +279,6 @@ class UploadPage(BasePage):
         return self.get_select(UploadLocators.WORKFLOW_SELECT)
 
     @property
-    def live_stream_checkbox(self):
-        return self.get_element(UploadLocators.LIVE_STREAM_CHECKBOX)
-
-    @property
     def multitrack_checkbox(self):
         return self.get_element(UploadLocators.MULTITRACK_CHECKBOX)
 

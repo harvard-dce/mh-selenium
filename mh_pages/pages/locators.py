@@ -63,7 +63,6 @@ class UploadLocators(object):
 
     CONTAINS_SLIDES_CHECKBOX = (By.CSS_SELECTOR, 'input#containsSlides')
     WORKFLOW_SELECT = (By.CSS_SELECTOR, 'select#workflowSelector')
-    LIVE_STREAM_CHECKBOX = (By.CSS_SELECTOR, 'input#hasLive')
     MULTITRACK_CHECKBOX = (By.CSS_SELECTOR, 'input#epiphanUpload')
     UPLOAD_BUTTON = (By.CSS_SELECTOR, 'button#submitButton')
     UPLOAD_PROGRESS_DIALOG = (By.CSS_SELECTOR, 'div#progressStage')

@@ -31,13 +31,11 @@ def rec():
               help="Recording type")
 @click.option('-i', '--inbox', is_flag=True,
               help="Use a MH inbox media file")
-@click.option('--live_stream', is_flag=True,
-              help="Flag to indicate a live stream recording")
 @selenium_options
 @pass_state
 @init_browser('/admin')
 def upload(state, presenter, presentation, combined,
-           series, title, type, inbox, live_stream):
+           series, title, type, inbox):
     """Upload a recording from a local path or the inbox"""
 
     page = RecordingsPage(state.browser)
@@ -57,11 +55,6 @@ def upload(state, presenter, presentation, combined,
                           presentation=presentation,
                           combined=combined,
                           is_inbox=inbox)
-
-    if live_stream:
-        page.live_stream_checkbox.check()
-    else:
-        page.live_stream_checkbox.uncheck()
 
     if combined is not None:
         page.multitrack_checkbox.check()

@@ -123,7 +123,6 @@ file in the user's space-limited home dir prior to copying to the inbox.
       --series TEXT        Series title. Should match an existing series.
       --title TEXT         Recording title
       -i, --inbox          Use a MH inbox media file
-      --live_stream
       -D, --driver TEXT    Selenium driver to use: firefox|chrome
       -H, --host TEXT      host/ip of remote admin node
       -u, --username TEXT  MH admin login username

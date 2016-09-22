@@ -4,7 +4,7 @@ from mh_cli.common import ClickState, pass_state
 
 click.disable_unicode_literals_warning = True
 
-__version__ = '1.2.0'
+__version__ = '1.2.1'
 
 
 @click.group()

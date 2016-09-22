@@ -84,34 +84,21 @@ def trim(state, filter=None, count=None):
     page = RecordingsPage(state.browser)
     page.max_per_page()
     page.on_hold_tab.click()
+    page.refresh_off()
+    sleep(3)
 
     if filter is not None:
         field, value = filter.split(':', 1)
         page.filter_recordings(field, value)
 
-    link_idx = 0
-    while True:
+    link_js = [x['href'].split(':', 1)[1] for x in page.trim_links]
 
-        # kinda annoying that we have to do this each time
-        page.refresh_off()
-        sleep(1)
-
-        try:
-            # re-resolve the trim link elements each time because the refs go
-            # stale when the page reloads
-            # also, iterate via incrementing idx so that we don't somehow trim
-            # the same thing > once (e.g. the entry doesn't get removed from
-            # the table because the workflow hasn't actually resumed)
-            link = page.trim_links[link_idx]
-            link_idx += 1
-        except (TimeoutException, IndexError):
-            break
-
-        href = link['href']
-        scheme, js = href.split(':', 1)
+    for js in link_js:
         page.js(js)
+
         page = TrimPage(state.browser)
         sleep(3)
+
         with page.switch_frame(page.trim_iframe):
             sleep(1)
             page.trim()
@@ -125,3 +112,4 @@ def trim(state, filter=None, count=None):
             count -= 1
             if count == 0:
                 break
+        sleep(5)

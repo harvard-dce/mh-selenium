@@ -1,0 +1,12 @@
+# mostly unpinned package dependencies
+# see: https://www.kennethreitz.org/essays/a-better-pip-workflow
+
+selenium
+click
+fabric
+pytimeparse
+unipath
+pytest
+pytest-ghostinspector
+pytest-xdist
+splinter

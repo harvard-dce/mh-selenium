@@ -36,6 +36,7 @@ class UploadLocators(object):
     START_MINUTE_SELECT = (By.CSS_SELECTOR, 'select#startTimeMin')
     CONTRIBUTOR_INPUT = (By.CSS_SELECTOR, 'input#contributor')
     TYPE_INPUT = (By.CSS_SELECTOR, 'input#type')
+    PUBLISHER_INPUT = (By.CSS_SELECTOR, 'input#publisher')
     SUBJECT_INPUT = (By.CSS_SELECTOR, 'input#subject')
     LANG_INPUT = (By.CSS_SELECTOR, 'input#language')
     DESC_INPUT = (By.CSS_SELECTOR, 'input#description')

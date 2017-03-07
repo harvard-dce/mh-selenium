@@ -122,6 +122,8 @@ file in the user's space-limited home dir prior to copying to the inbox.
       --combined TEXT      Combined presenter/presentation video
       --series TEXT        Series title. Should match an existing series.
       --title TEXT         Recording title
+      --type TEXT          Recording type
+      --email TEXT         Producer email
       -i, --inbox          Use a MH inbox media file
       -D, --driver TEXT    Selenium driver to use: firefox|chrome
       -H, --host TEXT      host/ip of remote admin node

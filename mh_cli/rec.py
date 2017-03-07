@@ -29,13 +29,15 @@ def rec():
               help="Recording title")
 @click.option('--type', default='L01',
               help="Recording type")
+@click.option('--email', default='producer@example.edu',
+              help="Producer email")
 @click.option('-i', '--inbox', is_flag=True,
               help="Use a MH inbox media file")
 @selenium_options
 @pass_state
 @init_browser('/admin')
 def upload(state, presenter, presentation, combined,
-           series, title, type, inbox):
+           series, title, type, email, inbox):
     """Upload a recording from a local path or the inbox"""
 
     page = RecordingsPage(state.browser)
@@ -45,11 +47,13 @@ def upload(state, presenter, presentation, combined,
         page.upload_recording_button.click()
 
     page = UploadPage(state.browser)
-    page.title_input.type(title)
-    page.type_input.type(type)
 
     if series is not None:
         page.set_series(series)
+
+    page.title_input.type(title)
+    page.type_input.type(type)
+    page.publisher_input.type(email)
 
     page.set_upload_files(presenter=presenter,
                           presentation=presentation,

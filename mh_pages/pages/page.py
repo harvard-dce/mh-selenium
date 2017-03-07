@@ -211,6 +211,10 @@ class UploadPage(BasePage):
         return self.get_element(UploadLocators.TYPE_INPUT)
 
     @property
+    def publisher_input(self):
+        return self.get_element(UploadLocators.PUBLISHER_INPUT)
+
+    @property
     def subject_input(self):
         return self.get_element(UploadLocators.SUBJECT_INPUT)
 

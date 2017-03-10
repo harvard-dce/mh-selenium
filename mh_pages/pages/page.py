@@ -14,7 +14,8 @@ from locators import RecordingsLocators, \
                      UploadLocators, \
                      TrimLocators, \
                      LoginLocators, \
-                     AdminLocators
+                     AdminLocators, \
+                     WelcomeLocators
 
 
 class BasePage(object):
@@ -99,6 +100,13 @@ class LoginPage(BasePage):
         self.username_input.type(username)
         self.password_input.type(password)
         self.submit.click()
+
+
+class WelcomePage(BasePage):
+
+    @property
+    def engage_link(self):
+        return self.get_element(WelcomeLocators.ENGAGE_LINK)
 
 
 class AdminPage(BasePage):

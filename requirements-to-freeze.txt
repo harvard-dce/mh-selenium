@@ -9,4 +9,5 @@ unipath
 pytest
 pytest-ghostinspector
 pytest-xdist
+pytest-splinter
 splinter

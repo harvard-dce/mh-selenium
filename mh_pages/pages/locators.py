@@ -11,6 +11,9 @@ class AdminLocators(object):
     RECORDINGS_TAB = (By.CSS_SELECTOR, 'a#i18n_tab_recording')
 
 
+class WelcomeLocators(object):
+    ENGAGE_LINK = (By.CSS_SELECTOR, '#engagelink')
+
 class RecordingsLocators(object):
     UPLOAD_RECORDING_BUTTON = (By.CSS_SELECTOR, 'button#uploadButton')
     SEARCH_SELECT = (By.CSS_SELECTOR, 'div#searchBox > select')

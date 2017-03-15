@@ -23,7 +23,8 @@ pip-log.txt
 tmp
 
 # pytest stuff
-pytest.ini
 .cache
 
 *.mp4
+
+.env

@@ -3,9 +3,9 @@ import os
 import re
 import codecs
 from setuptools import setup, find_packages
+from pip.req import parse_requirements
 
 here = os.path.abspath(os.path.dirname(__file__))
-
 
 def read(path):
     return codecs.open(os.path.join(here, path), 'r', 'utf-8').read()
@@ -16,17 +16,8 @@ version = re.search(
     version_file,
     re.M).group(1)
 
-install_requires = [
-    "selenium>=2.53.5",
-    "click>=5.1",
-    "Fabric>=1.11.1",
-    "pytimeparse==1.1.5",
-    "unipath==1.1",
-    "pytest>=2.8.1",
-    "pytest-ghostinspector==0.4.0",
-    "pytest-xdist==1.14",
-    "splinter>=0.7.3"
-]
+install_requires = [str(r.req) for r in
+                    parse_requirements('requirements.txt', session=False)]
 
 setup(
     name='mh-ui-testing',

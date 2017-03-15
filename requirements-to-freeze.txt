@@ -10,4 +10,6 @@ pytest
 pytest-ghostinspector
 pytest-xdist
 pytest-splinter
+pytest-dotenv
 splinter
+arrow

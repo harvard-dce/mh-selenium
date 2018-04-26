@@ -7,6 +7,7 @@ from mh_cli import cli
 from urlparse import urljoin
 from common import pass_state, init_browser, selenium_options
 from mh_pages.pages import ApiDocPage
+from xml.sax.saxutils import escape
 
 CATALOG_XML = '''
 <?xml version="1.0" encoding="UTF-8"?>
@@ -84,9 +85,9 @@ def create(state, title, subject, id):
     if subject is None:
         subject = 'TEST S-' + id[-5:]
 
-    catalog_xml = CATALOG_XML.replace('SERIES_ID', id)
-    catalog_xml = catalog_xml.replace('SERIES_TITLE', title)
-    catalog_xml = catalog_xml.replace('SERIES_SUBJECT', subject)
+    catalog_xml = CATALOG_XML.replace('SERIES_ID', escape(id))
+    catalog_xml = catalog_xml.replace('SERIES_TITLE', escape(title))
+    catalog_xml = catalog_xml.replace('SERIES_SUBJECT', escape(subject))
 
     doc_page_url = urljoin(state.base_url, '/docs.html?path=/series')
     page = ApiDocPage(state.browser, doc_page_url)

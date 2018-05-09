@@ -99,12 +99,20 @@ def inbox_path_option(f):
                         envvar='MHUIT_INBOX_PATH',
                         callback=state_callback)(f)
 
+def xvfb_option(f):
+    return click.option('--xvfb/--no-xvfb',
+                        default=False,
+                        expose_value=False,
+                        help='use xvfb headless mode',
+                        callback=state_callback)(f)
+
 
 def selenium_options(f):
     f = password_option(f)
     f = username_option(f)
     f = host_option(f)
     f = driver_option(f)
+    f = xvfb_option(f)
     return f
 
 
@@ -132,12 +140,18 @@ def init_fabric(click_cmd):
     return wrapped
 
 
+def xvfb_or_nah(use_xvfb=False):
+    if use_xvfb:
+        return Xvfb()
+    return NullContextManager()
+
+
 def init_browser(init_path=''):
     def decorator(click_cmd):
         @wraps(click_cmd)
         def _wrapped_cmd(state, *args, **kwargs):
 
-            with Xvfb():
+            with xvfb_or_nah(state.xvfb):
                 try:
                     state.browser = Browser(state.driver)
                     state.browser.visit(urljoin(state.base_url, init_path))
@@ -159,3 +173,15 @@ def init_browser(init_path=''):
 
         return _wrapped_cmd
     return decorator
+
+
+class NullContextManager(object):
+
+    def __init__(self, dummy_resource=None):
+        self.dummy_resource = dummy_resource
+
+    def __enter__(self):
+        return self.dummy_resource
+
+    def __exit__(self, *args):
+        pass

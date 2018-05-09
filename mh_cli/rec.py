@@ -33,11 +33,13 @@ def rec():
               help="Producer email")
 @click.option('-i', '--inbox', is_flag=True,
               help="Use a MH inbox media file")
+@click.option('-w', '--workflow', default='DCE-production-upload',
+              help="Use a specific workflow definition, e.g. 'DCE-auto-publish'")
 @selenium_options
 @pass_state
 @init_browser('/admin')
 def upload(state, presenter, presentation, combined,
-           series, title, type, email, inbox):
+           series, title, type, email, inbox, workflow):
     """Upload a recording from a local path or the inbox"""
 
     page = RecordingsPage(state.browser)
@@ -64,6 +66,8 @@ def upload(state, presenter, presentation, combined,
         page.multitrack_checkbox.check()
     else:
         page.multitrack_checkbox.uncheck()
+
+    page.workflow_select.select_by_value(workflow)
 
     page.upload_button.click()
     page.wait_for_upload_finish()

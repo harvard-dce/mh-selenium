@@ -67,6 +67,7 @@ class UploadLocators(object):
     MULTITRACK_CHECKBOX = (By.CSS_SELECTOR, 'input#epiphanUpload')
     UPLOAD_BUTTON = (By.CSS_SELECTOR, 'button#submitButton')
     UPLOAD_PROGRESS_DIALOG = (By.CSS_SELECTOR, 'div#progressStage')
+    TRIM_LATER_CHECKBOX = (By.CSS_SELECTOR, 'input#trimLater')
 
 
 class TrimLocators(object):

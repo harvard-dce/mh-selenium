@@ -283,6 +283,10 @@ class UploadPage(BasePage):
         return self.get_select(UploadLocators.WORKFLOW_SELECT)
 
     @property
+    def trim_later_checkbox(self):
+        return self.get_element(UploadLocators.TRIM_LATER_CHECKBOX)
+
+    @property
     def multitrack_checkbox(self):
         return self.get_element(UploadLocators.MULTITRACK_CHECKBOX)
 

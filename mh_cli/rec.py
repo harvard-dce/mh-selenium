@@ -35,11 +35,13 @@ def rec():
               help="Use a MH inbox media file")
 @click.option('-w', '--workflow', default='DCE-production-upload',
               help="Use a specific workflow definition, e.g. 'DCE-auto-publish'")
+@click.option('--trim-later', is_flag=True,
+              help="Choose the trimLater option. Only applies to 'DCE-auto-publish' workflow")
 @selenium_options
 @pass_state
 @init_browser('/admin')
 def upload(state, presenter, presentation, combined,
-           series, title, type, email, inbox, workflow):
+           series, title, type, email, inbox, workflow, trim_later):
     """Upload a recording from a local path or the inbox"""
 
     page = RecordingsPage(state.browser)
@@ -68,6 +70,9 @@ def upload(state, presenter, presentation, combined,
         page.multitrack_checkbox.uncheck()
 
     page.workflow_select.select_by_value(workflow)
+
+    if trim_later:
+        page.trim_later_checkbox.check()
 
     page.upload_button.click()
     page.wait_for_upload_finish()

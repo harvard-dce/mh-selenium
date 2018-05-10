@@ -113,7 +113,7 @@ def trim(state, filter=None, count=None):
         sleep(3)
 
         with page.switch_frame(page.trim_iframe):
-            sleep(1)
+            sleep(5)
             page.trim()
 
         with page.wait_for_page_change():

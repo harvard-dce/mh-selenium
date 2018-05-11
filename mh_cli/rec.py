@@ -37,6 +37,8 @@ def rec():
               help="Use a specific workflow definition, e.g. 'DCE-auto-publish'")
 @click.option('--trim-later', is_flag=True,
               help="Choose the trimLater option. Only applies to 'DCE-auto-publish' workflow")
+#@click.option('--multitrack', is_flag=True,
+#              help="If uploading a MULTITRACK file from epiphan")
 @selenium_options
 @pass_state
 @init_browser('/admin')
@@ -64,12 +66,13 @@ def upload(state, presenter, presentation, combined,
                           combined=combined,
                           is_inbox=inbox)
 
+    page.workflow_select.select_by_value(workflow)
+    sleep(1)
+
     if combined is not None:
         page.multitrack_checkbox.check()
     else:
         page.multitrack_checkbox.uncheck()
-
-    page.workflow_select.select_by_value(workflow)
 
     if trim_later:
         page.trim_later_checkbox.check()
